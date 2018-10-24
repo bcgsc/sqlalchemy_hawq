@@ -1,7 +1,8 @@
 
 # Hawq Sqlalchemy
 
-
+This is a custom dialect for using SQLAlchemy with a [HAWQ](http://hawq.apache.org/docs/userguide/2.3.0.0-incubating/tutorial/overview.html)
+database.
 
 
 ## Getting Started
@@ -34,3 +35,4 @@ pip install -e .[dev]
 pytest tests
 ```
 
+## Using in an SQLAlchemy project

@@ -37,5 +37,7 @@ setup(
     dependency_links=[],
     test_suite='tests',
     tests_require=TEST_REQS,
-    entry_points={'console_scripts': []}
+    entry_points={'sqlalchemy.dialects': [
+        'hawq = hawq_sqlalchemy:Hawq'
+    ]}
 )
