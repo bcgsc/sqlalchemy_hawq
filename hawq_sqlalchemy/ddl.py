@@ -3,6 +3,7 @@ Data definition language support for the Apache Hawq database
 '''
 
 import re
+import decimal
 
 
 from sqlalchemy.dialects import postgresql
@@ -25,6 +26,8 @@ def format_ddl_value(type_, value):
             return True
         elif str(value).lower() in ['f', 'false', '0']:
             return False
+    elif type_.python_type == decimal.Decimal:
+        return decimal.Decimal(value)
     raise NotImplementedError('unsupported type ({}) for the given value ({}) in hawq has not been implemented'.format(
         type_.python_type, value
     ))
