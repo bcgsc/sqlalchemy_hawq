@@ -1,0 +1,3 @@
+
+recursive-include hawq_sqlalchemy *
+include README.md
