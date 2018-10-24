@@ -5,6 +5,8 @@ __pycache__
 *.egg-info
 bin
 dist
+.coverage
+htmlcov
 build
 
 # common virtual environment names
