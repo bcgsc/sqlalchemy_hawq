@@ -36,3 +36,17 @@ pytest tests
 ```
 
 ## Using in an SQLAlchemy project
+
+Add hawq_sqlalchemy to your dependencies and install.
+
+```bash
+pip install hawq_sqlalchemy
+```
+
+Then the plugin can be used like any other engine
+
+```python
+from sqlalchemy import create_engine
+
+engine = create_engine('hawq://....')
+```
