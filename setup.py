@@ -2,7 +2,9 @@
 from setuptools import setup, find_packages
 
 # Dependencies required to use your package
-INSTALL_REQS = []
+INSTALL_REQS = [
+    'sqlalchemy>=1.2.12'
+]
 
 # Dependencies required only for building the documentation
 DOCUMENTATION_REQS = [
@@ -12,9 +14,7 @@ DOCUMENTATION_REQS = [
 # Dependencies required only for running tests
 TEST_REQS = [
     'pytest',
-    'pytest-runner',
-    'pytest-cov',
-    'twine'
+    'pytest-cov'
 ]
 
 # Dependencies required for deploying to an index server
@@ -30,7 +30,8 @@ setup(
     install_requires=INSTALL_REQS,
     extras_require={
         'docs': DOCUMENTATION_REQS,
-        'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS
+        'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS,
+        'test': TEST_REQS
     },
     python_requires='>=3',
     author_email='creisle@bcgsc.ca',
@@ -38,6 +39,6 @@ setup(
     test_suite='tests',
     tests_require=TEST_REQS,
     entry_points={'sqlalchemy.dialects': [
-        'hawq = hawq_sqlalchemy:Hawq'
+        'hawq = hawq_sqlalchemy.dialect:HawqDialect'
     ]}
 )
