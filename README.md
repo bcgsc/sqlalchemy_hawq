@@ -52,15 +52,14 @@ engine = create_engine('hawq://....')
 
 Hawq specific table arguments are also supported (Not all features are supported yet)
 
-
 | Argument | Type | Example | Notes |
-|--|--|--|--|
+|----------|------|---------|-------|
 | hawq_distributed_by | str | `'column_name'` | |
 | hawq_partition_by | tuple of str and dict by str | `('column_name', {'part1': 1, 'part2': 2})` | Currently only supports parition by list and will always create a default partition of other |
 | hawq_apppendonly | bool | `True` | |
 | hawq_orientation | str | `'ROW'` | expects one of `{'ROW', 'PARQUET'}` |
 | hawq_compresstype | str | `'ZLIB'` | expects one of `{'ZLIB', 'SNAPPY', 'GZIP', 'NONE'}` |
-| hawq_compresslevel | int | 0 | expects an integer between 0-9 |
+| hawq_compresslevel | int | `0` | expects an integer between 0-9 |
 
 ---
 
