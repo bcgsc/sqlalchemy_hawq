@@ -10,7 +10,10 @@ from .ddl import HawqDDLCompiler
 
 
 class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
-    construct_arguments = [
+    '''
+    Main dialect class. Used by the engine to compile sql
+    '''
+    construct_argument = [
         (schema.Table, {
             'partition_by': None,
             'inherits': None,

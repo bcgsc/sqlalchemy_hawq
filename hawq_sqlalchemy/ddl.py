@@ -14,6 +14,10 @@ from sqlalchemy.sql import expression
 def format_ddl_value(type_, value):
     '''
     Return the SQL representation of a given value
+
+    Args:
+        type_: an sqlalchemy type instance e.x. TEXT()
+        value: value to cast
     '''
     if type_.python_type == int:
         return int(value)
@@ -34,6 +38,12 @@ def format_ddl_value(type_, value):
 
 
 def valid_partition_name(name):
+    '''
+    Checks that a partition name is word characters only (to avoid injection)
+
+    Args:
+        name (str): name of the partition
+    '''
     if not re.match(r'^[a-z]\w+$', str(name), re.IGNORECASE):
         raise ValueError('invalid partition name ){})'.format(name))
     else:
@@ -45,7 +55,14 @@ def partition_clause(table, partition_by):
     Create the partition clause for when a partition is defined on a HAWQ table
 
     Args:
-        param_index (int): start naming parameters at this index
+        table (sqlalchemy.schema.Table): the table being partitioned
+        partition_by (tuple of str and dict by str): the column to partition on and the mapping of partition names to values
+
+    Note:
+        currently only supports partitioning a table by list not range
+
+    Returns:
+        str: the partition clause
     '''
     column_name, partitions = partition_by
     column = [c for c in table.columns if c.name == column_name]
@@ -69,6 +86,15 @@ def partition_clause(table, partition_by):
 
 
 def with_clause(table_opts):
+    '''
+    Create the WITH clause for table DDL to indicates storage parameters
+
+    Args:
+        table_opts (dict): the dictionary of table specific arguments
+
+    Returns:
+        str: the with clause to follow CREATE TABLE
+    '''
     with_statement = {}
 
     if table_opts['appendonly'] is not None:
