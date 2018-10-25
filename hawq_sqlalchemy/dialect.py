@@ -13,7 +13,7 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
     '''
     Main dialect class. Used by the engine to compile sql
     '''
-    construct_argument = [
+    construct_arguments = [
         (schema.Table, {
             'partition_by': None,
             'inherits': None,
