@@ -13,11 +13,16 @@ from sqlalchemy.sql import expression
 
 def format_ddl_value(type_, value):
     '''
-    Return the SQL representation of a given value
+    Cast an input value based on the SQL type. This is done so
+    that we can use the repr function to insert the value into
+    RAW SQL
 
     Args:
         type_: an sqlalchemy type instance e.x. TEXT()
         value: value to cast
+
+    Returns:
+        the value cast to its python equivalent
     '''
     if type_.python_type == int:
         return int(value)
