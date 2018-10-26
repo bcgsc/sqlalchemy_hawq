@@ -66,18 +66,19 @@ def partition_clause(table, partition_by):
     Note:
         currently only supports partitioning a table by list not range
 
+    Warning:
+        the column_name must be the database column name and not the attribute name of the column for the declarative model
+
     Returns:
         str: the partition clause
     '''
     column_name, partitions = partition_by
-    column = [c for c in table.columns if c.name == column_name]
-    if not column:
+    column = table.columns.get(column_name)
+    if column is None:
         raise ValueError('Column ({}) to use for partitioning not found'.format(column_name))
-    column = column[0]
 
     partition_statments = []
     for name, value in partitions.items():
-        print(name, value, column.type)
         partition_statments.append('\tPARTITION {} VALUES ({!r}),'.format(
             valid_partition_name(name),
             format_ddl_value(column.type, value)
