@@ -48,6 +48,12 @@ def valid_partition_name(name):
 
     Args:
         name (str): name of the partition
+
+    Returns:
+        str: the input name
+
+    Raises:
+        ValueError: when an invalid partition name is input
     '''
     if not re.match(r'^[a-z]\w+$', str(name), re.IGNORECASE):
         raise ValueError('invalid partition name ){})'.format(name))
