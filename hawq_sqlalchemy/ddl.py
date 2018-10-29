@@ -11,7 +11,7 @@ from sqlalchemy import schema
 from sqlalchemy.sql import expression
 
 
-def format_ddl_value(type_, value):
+def format_partition_value(type_, value):
     '''
     Cast an input value based on the SQL type. This is done so
     that we can use the repr function to insert the value into
@@ -22,21 +22,23 @@ def format_ddl_value(type_, value):
         value: value to cast
 
     Returns:
-        the value cast to its python equivalent
+        str: the value cast to its python equivalent and represented as a string
+
+    Note:
+        uses double dollar sign quoted strings for strings containing single quotes https://www.postgresql.org/docs/current/static/sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING
     '''
-    if type_.python_type == int:
-        return int(value)
-    elif type_.python_type == float:
-        return float(value)
+    if type_.python_type in [int, float, decimal.Decimal]:
+        return str(type_.python_type(value))
     elif type_.python_type == str:
-        return str(value)
+        if '\'' in value:
+            return '$${}$$'.format(value)
+        else:
+            return '\'{}\''.format(value)
     elif type_.python_type == bool:
         if str(value).lower() in ['t', 'true', '1']:
-            return True
+            return 'TRUE'
         elif str(value).lower() in ['f', 'false', '0']:
-            return False
-    elif type_.python_type == decimal.Decimal:
-        return decimal.Decimal(value)
+            return 'FALSE'
     raise NotImplementedError('unsupported type ({}) for the given value ({}) in hawq has not been implemented'.format(
         type_.python_type, value
     ))
@@ -85,9 +87,9 @@ def partition_clause(table, partition_by):
 
     partition_statments = []
     for name, value in partitions.items():
-        partition_statments.append('\tPARTITION {} VALUES ({!r}),'.format(
+        partition_statments.append('\tPARTITION {} VALUES ({}),'.format(
             valid_partition_name(name),
-            format_ddl_value(column.type, value)
+            format_partition_value(column.type, value)
         ))
     partition_statments.append('\tDEFAULT PARTITION other')
     statement = 'PARTITION BY LIST ({})\n(\n{}\n)'.format(
