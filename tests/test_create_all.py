@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.schema import CreateTable, Index
-from hawq_sqlalchemy.partition import ListPartition, RangePartition
+from hawq_sqlalchemy.partition import *
 
 @pytest.fixture
 def engine_spy():
@@ -103,7 +103,6 @@ PARTITION BY LIST (chrom)
 \tDEFAULT PARTITION other
 )'''
         assert expected == engine_spy.sql.strip()
-
     def test_partition_by_range(self, base, engine_spy):
 
         class MockTable(base):
@@ -118,15 +117,65 @@ PARTITION BY LIST (chrom)
 
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
+
         expected = '''CREATE TABLE "MockTable" (
 \tchrom INTEGER NOT NULL
 )
 PARTITION BY RANGE (chrom)
+
 (
 \tSTART (0) END (10) EVERY (2),
 \tDEFAULT PARTITION extra
 )'''
         assert expected == engine_spy.sql.strip()
+
+    def test_subpartition_by_list_and_range(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            __table_args__ = (
+                {
+                    'hawq_partition_by': RangePartition('year', 2002, 2012, 1, [
+                        RangeSubpartition('month', 1, 13, 1),
+                        ListSubpartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'})
+                    ])
+                }
+            )
+            id = Column('id',Integer(), primary_key = True, autoincrement = False)
+            year = Column('year',Integer())
+            month = Column('month',Integer())
+            chrom = Column('chrom',Text())
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+        actual = engine_spy.sql.strip()
+        print(actual)
+        expected = '''CREATE TABLE "MockTable" (
+	id INTEGER NOT NULL, 
+	year INTEGER, 
+	month INTEGER, 
+	chrom TEXT
+)
+PARTITION BY RANGE (year)
+\n\tSUBPARTITION BY RANGE (month)
+\tSUBPARTITION TEMPLATE
+\t(
+\t\tSTART (1) END (13) EVERY (1),
+\t\tDEFAULT SUBPARTITION extra
+\t)
+
+\tSUBPARTITION BY LIST (chrom)\
+\n\tSUBPARTITION TEMPLATE
+\t(
+\t\tSUBPARTITION chr1 VALUES ('1'),
+\t\tSUBPARTITION chr2 VALUES ('2'),
+\t\tSUBPARTITION chr3 VALUES ('3'),
+\t\tDEFAULT SUBPARTITION other
+\t)
+(
+\tSTART (2002) END (2012) EVERY (1),
+\tDEFAULT PARTITION extra\
+\n)'''
+        assert expected == actual
 
 
     def test_appendonly(self, base, engine_spy):

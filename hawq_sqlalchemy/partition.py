@@ -30,7 +30,7 @@ class ListPartition(Partition):
 
         subpartition_statements = []
         for item in self.subpartitions:
-            subpartition_statements.append('\n',item.clause(table))
+            subpartition_statements.append('\n' + item.clause(table))
 
         partition_statements = []
         for name, value in self.mapping.items():
@@ -38,33 +38,12 @@ class ListPartition(Partition):
                 valid_partition_name(name),
                 format_partition_value(column.type, value)
              ))
-        statement = 'PARTITION BY LIST ({})\n{}(\n{}\n\tDEFAULT PARTITION other)'.format(
+        statement = 'PARTITION BY LIST ({})\n{}(\n{}\n\tDEFAULT PARTITION other\n)'.format(
             self.column_name,
             '\n'.join(subpartition_statements),
             '\n'.join(partition_statements)
         )
-
         return statement
-
-
-"""     column_name, partitions = partition_by
-    column = table.columns.get(column_name)
-    if column is None:
-        raise ValueError('Column ({}) to use for partitioning not found'.format(column_name))
-
-    partition_statments = []
-    for name, value in partitions.items():
-        partition_statments.append('\tPARTITION {} VALUES ({}),'.format(
-            valid_partition_name(name),
-            format_partition_value(column.type, value)
-        ))
-    partition_statments.append('\tDEFAULT PARTITION other')
-    statement = 'PARTITION BY LIST ({})\n(\n{}\n)'.format(
-        column_name,
-        '\n'.join(partition_statments)
-    )
-    return statement """
-
 
 
 class RangePartition(Partition):
@@ -83,15 +62,15 @@ class RangePartition(Partition):
 
         subpartition_statements = []
         for item in self.subpartitions:
-            subpartition_statements.append('\n',item.clause(table))
+            subpartition_statements.append('\n' + item.clause(table))
 
-        statement = 'PARTITION BY RANGE ({})\n(START({}) END({}) EVERY ({}),\n{}\n\tDEFAULT PARTITION other)'.format(
+        statement = 'PARTITION BY RANGE ({})\n{}\n(\n\tSTART ({}) END ({}) EVERY ({}),\n\tDEFAULT PARTITION extra\n)'.format(
             self.column_name,
             '\n'.join(subpartition_statements),
             self.start, self.end, self.every
         )
-
         return statement
+
 
 class ListSubpartition(Partition):
     def __init__(self, column_name, mapping):
@@ -99,6 +78,23 @@ class ListSubpartition(Partition):
         self.mapping = mapping
 
     def clause(self, table):
+        column = table.columns.get(self.column_name)
+        if column is None:
+            raise ValueError('Column ({}) to use for partitioning not found'.format(self.column_name))
+
+        partition_statements = []
+        for name, value in self.mapping.items():
+            partition_statements.append('\tSUBPARTITION {} VALUES ({}),'.format(
+                valid_partition_name(name),
+                format_partition_value(column.type, value)
+             ))
+        statement = '\tSUBPARTITION BY LIST ({})\n\tSUBPARTITION TEMPLATE\n\t(\n\t{}\n\t\tDEFAULT SUBPARTITION other\n\t)'.format(
+            self.column_name,
+            '\n\t'.join(partition_statements)
+        )
+        return statement
+
+
         return ' LIST SUBPARTITION TEST '
 
 class RangeSubpartition(Partition):
@@ -106,10 +102,18 @@ class RangeSubpartition(Partition):
         self.column_name = column_name
         self.start = start
         self.end = end
-        self.every = every
+        self.every = every    
 
     def clause(self, table):
-        return ' RANGE SUBPARTITION TEST '
+        column = table.columns.get(self.column_name)
+        if column is None:
+            raise ValueError('Column ({}) to use for partitioning not found'.format(self.column_name))
+
+        statement = '\tSUBPARTITION BY RANGE ({})\n\tSUBPARTITION TEMPLATE\n\t(\n\t\tSTART ({}) END ({}) EVERY ({}),\n\t\tDEFAULT SUBPARTITION extra\n\t)'.format(
+            self.column_name,
+            self.start, self.end, self.every
+        )
+        return statement
 
 
 def format_partition_value(type_, value):
@@ -169,10 +173,11 @@ def partition_clause(table, partition_by):
 
     Args:
         table (sqlalchemy.schema.Table): the table being partitioned
-        partition_by (tuple of str and dict by str): the column to partition on and the mapping of partition names to values
+        partition_by (tuple of str and dict by str): the Range- or List- partition object consisting of column name,
+            partition args, and subpartition array
 
     Note:
-        currently only supports partitioning a table by list not range
+        currently does not support partitioning by range on date
 
     Warning:
         the column_name must be the database column name and not the attribute name of the column for the declarative model
@@ -180,12 +185,9 @@ def partition_clause(table, partition_by):
     Returns:
         str: the partition clause
     '''
-    clause = partition_by.clause(table)
 
-    print(partition_by.column_name)
-    print(partition_by.subpartitions)
-
-    return clause
+    print(partition_by.clause(table))
+    return partition_by.clause(table)
 
 
 

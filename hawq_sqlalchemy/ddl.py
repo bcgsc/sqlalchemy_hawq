@@ -13,30 +13,6 @@ from .partition import *
 
 
 
-""" def partition_clause(table, partition_by):
-    '''
-    Create the partition clause for when a partition is defined on a HAWQ table
-
-    Args:
-        table (sqlalchemy.schema.Table): the table being partitioned
-        partition_by (tuple of str and dict by str): the column to partition on and the mapping of partition names to values
-
-    Note:
-        currently only supports partitioning a table by list not range
-
-    Warning:
-        the column_name must be the database column name and not the attribute name of the column for the declarative model
-
-    Returns:
-        str: the partition clause
-    '''
-    clause = partition_by.clause()
-
-    return clause
-
-
-
- """
 def with_clause(table_opts):
     '''
     Create the WITH clause for table DDL to indicates storage parameters
