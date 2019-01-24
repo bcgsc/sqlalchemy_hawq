@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Text, UniqueConstraint, create_engine
+from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.schema import CreateTable, Index
 
 
@@ -103,6 +103,31 @@ PARTITION BY LIST (chrom)
 \tDEFAULT PARTITION other
 )'''
         assert expected == engine_spy.sql.strip()
+
+    def test_partition_by_range(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            __table_args__ = (
+                UniqueConstraint('chrom'),
+                {
+                    'hawq_partition_by': RangePartition('chrom', 0, 10, 2)
+                }
+            )
+            chrom = Column('chrom', Integer(), primary_key=True)
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+        expected = '''CREATE TABLE "MockTable" (
+\tchrom TEXT NOT NULL
+)
+PARTITION BY RANGE (chrom)
+(
+\tSTART (0) END (10) EVERY (2),
+\tDEFAULT PARTITION extra
+)'''
+        assert expected == engine_spy.sql.strip()
+
 
     def test_appendonly(self, base, engine_spy):
 
