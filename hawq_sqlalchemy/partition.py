@@ -21,9 +21,50 @@ class ListPartition(Partition):
         self.column_name = column_name
         self.mapping = mapping
         self.subpartitions = subpartitions
+        print(mapping)
 
-    def clause(self):
-        return ' LIST PARTITION TEST '
+    def clause(self, table):
+        column = table.columns.get(self.column_name)
+        if column is None:
+            raise ValueError('Column ({}) to use for partitioning not found'.format(self.column_name))
+
+        subpartition_statements = []
+        for item in self.subpartitions:
+            subpartition_statements.append('\n',item.clause(table))
+
+        partition_statements = []
+        for name, value in self.mapping.items():
+            partition_statements.append('\tPARTITION {} VALUES ({}),'.format(
+                valid_partition_name(name),
+                format_partition_value(column.type, value)
+             ))
+        statement = 'PARTITION BY LIST ({})\n{}(\n{}\n\tDEFAULT PARTITION other)'.format(
+            self.column_name,
+            '\n'.join(subpartition_statements),
+            '\n'.join(partition_statements)
+        )
+
+        return statement
+
+
+"""     column_name, partitions = partition_by
+    column = table.columns.get(column_name)
+    if column is None:
+        raise ValueError('Column ({}) to use for partitioning not found'.format(column_name))
+
+    partition_statments = []
+    for name, value in partitions.items():
+        partition_statments.append('\tPARTITION {} VALUES ({}),'.format(
+            valid_partition_name(name),
+            format_partition_value(column.type, value)
+        ))
+    partition_statments.append('\tDEFAULT PARTITION other')
+    statement = 'PARTITION BY LIST ({})\n(\n{}\n)'.format(
+        column_name,
+        '\n'.join(partition_statments)
+    )
+    return statement """
+
 
 
 class RangePartition(Partition):
@@ -35,15 +76,29 @@ class RangePartition(Partition):
         self.subpartitions = subpartitions
 
 
-    def clause(self):
-        return ' RANGE PARTITION TEST '
+    def clause(self, table):
+        column = table.columns.get(self.column_name)
+        if column is None:
+            raise ValueError('Column ({}) to use for partitioning not found'.format(self.column_name))
+
+        subpartition_statements = []
+        for item in self.subpartitions:
+            subpartition_statements.append('\n',item.clause(table))
+
+        statement = 'PARTITION BY RANGE ({})\n(START({}) END({}) EVERY ({}),\n{}\n\tDEFAULT PARTITION other)'.format(
+            self.column_name,
+            '\n'.join(subpartition_statements),
+            self.start, self.end, self.every
+        )
+
+        return statement
 
 class ListSubpartition(Partition):
     def __init__(self, column_name, mapping):
         self.column_name = column_name
         self.mapping = mapping
 
-    def clause(self):
+    def clause(self, table):
         return ' LIST SUBPARTITION TEST '
 
 class RangeSubpartition(Partition):
@@ -53,7 +108,7 @@ class RangeSubpartition(Partition):
         self.end = end
         self.every = every
 
-    def clause(self):
+    def clause(self, table):
         return ' RANGE SUBPARTITION TEST '
 
 
@@ -88,5 +143,50 @@ def format_partition_value(type_, value):
     raise NotImplementedError('unsupported type ({}) for the given value ({}) in hawq has not been implemented'.format(
         type_.python_type, value
     ))
+
+def valid_partition_name(name):
+    '''
+    Checks that a partition name is word characters only (to avoid injection)
+
+    Args:
+        name (str): name of the partition
+
+    Returns:
+        str: the input name
+
+    Raises:
+        ValueError: when an invalid partition name is input
+    '''
+    if not re.match(r'^[a-z]\w+$', str(name), re.IGNORECASE):
+        raise ValueError('invalid partition name ){})'.format(name))
+    else:
+        return name
+
+
+def partition_clause(table, partition_by):
+    '''
+    Create the partition clause for when a partition is defined on a HAWQ table
+
+    Args:
+        table (sqlalchemy.schema.Table): the table being partitioned
+        partition_by (tuple of str and dict by str): the column to partition on and the mapping of partition names to values
+
+    Note:
+        currently only supports partitioning a table by list not range
+
+    Warning:
+        the column_name must be the database column name and not the attribute name of the column for the declarative model
+
+    Returns:
+        str: the partition clause
+    '''
+    clause = partition_by.clause(table)
+
+    print(partition_by.column_name)
+    print(partition_by.subpartitions)
+
+    return clause
+
+
 
 

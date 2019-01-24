@@ -13,7 +13,7 @@ from .partition import *
 
 
 
-def partition_clause(table, partition_by):
+""" def partition_clause(table, partition_by):
     '''
     Create the partition clause for when a partition is defined on a HAWQ table
 
@@ -34,25 +34,9 @@ def partition_clause(table, partition_by):
 
     return clause
 
-"""     column_name, partitions = partition_by
-    column = table.columns.get(column_name)
-    if column is None:
-        raise ValueError('Column ({}) to use for partitioning not found'.format(column_name))
-
-    partition_statments = []
-    for name, value in partitions.items():
-        partition_statments.append('\tPARTITION {} VALUES ({}),'.format(
-            valid_partition_name(name),
-            format_partition_value(column.type, value)
-        ))
-    partition_statments.append('\tDEFAULT PARTITION other')
-    statement = 'PARTITION BY LIST ({})\n(\n{}\n)'.format(
-        column_name,
-        '\n'.join(partition_statments)
-    )
-    return statement """
 
 
+ """
 def with_clause(table_opts):
     '''
     Create the WITH clause for table DDL to indicates storage parameters
