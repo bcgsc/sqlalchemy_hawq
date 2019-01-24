@@ -11,6 +11,30 @@ from sqlalchemy import schema
 from sqlalchemy.sql import expression
 
 
+
+class Partition:
+    def __init__(self, column_name):
+        pass
+    def clause(table):
+        raise NotImplementedError('abstract method must be overridden')
+
+
+class ListPartition(Partition):
+    # mapping is a dict of str to value
+    def __init__(self, column_name, mapping, level=1):
+        return
+    def clause(table):
+        raise NotImplementedError('abstract method must be overridden')
+
+
+class RangePartition(Partition):
+    def __init__(self, column_name, start, end, every, level=1):
+        return
+    def clause(table):
+        raise NotImplementedError('abstract method must be overridden')
+
+
+
 def format_partition_value(type_, value):
     '''
     Cast an input value based on the SQL type. This is done so
@@ -80,7 +104,10 @@ def partition_clause(table, partition_by):
     Returns:
         str: the partition clause
     '''
-    column_name, partitions = partition_by
+    #print(partition_by)
+    return "test"
+
+"""     column_name, partitions = partition_by
     column = table.columns.get(column_name)
     if column is None:
         raise ValueError('Column ({}) to use for partitioning not found'.format(column_name))
@@ -97,7 +124,7 @@ def partition_clause(table, partition_by):
         '\n'.join(partition_statments)
     )
     return statement
-
+ """
 
 def with_clause(table_opts):
     '''
