@@ -36,7 +36,7 @@ class TestCreateAll:
                 UniqueConstraint('chrom'),
                 {
                     'hawq_distributed_by': 'chrom',
-                    'hawq_partition_by': ('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}),
+                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}),
                     'hawq_appendonly': True
                 }
             )
@@ -78,14 +78,14 @@ PARTITION BY LIST (chrom)
 DISTRIBUTED BY (chrom)'''
         assert expected == engine_spy.sql.strip()
 
-    def test_partition_by(self, base, engine_spy):
+    def test_partition_by_list(self, base, engine_spy):
 
         class MockTable(base):
             __tablename__ = 'MockTable'
             __table_args__ = (
                 UniqueConstraint('chrom'),
                 {
-                    'hawq_partition_by': ('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})
+                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
