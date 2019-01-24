@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.schema import CreateTable, Index
-from hawq_sqlalchemy.ddl import ListPartition, RangePartition
+from hawq_sqlalchemy.partition import ListPartition, RangePartition
 
 @pytest.fixture
 def engine_spy():
@@ -36,7 +36,7 @@ class TestCreateAll:
                 UniqueConstraint('chrom'),
                 {
                     'hawq_distributed_by': 'chrom',
-                    'hawq_partition_by': [ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})],
+                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}),
                     'hawq_appendonly': True
                 }
             )
@@ -85,7 +85,7 @@ DISTRIBUTED BY (chrom)'''
             __table_args__ = (
                 UniqueConstraint('chrom'),
                 {
-                    'hawq_partition_by': [ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})]
+                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -111,7 +111,7 @@ PARTITION BY LIST (chrom)
             __table_args__ = (
                 UniqueConstraint('chrom'),
                 {
-                    'hawq_partition_by': [RangePartition('chrom', 0, 10, 2)]
+                    'hawq_partition_by': RangePartition('chrom', 0, 10, 2)
                 }
             )
             chrom = Column('chrom', Integer(), primary_key=True, autoincrement=False)

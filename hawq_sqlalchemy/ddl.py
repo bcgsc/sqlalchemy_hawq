@@ -9,82 +9,8 @@ import decimal
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
 from sqlalchemy.sql import expression
+from .partition import *
 
-
-
-class Partition:
-    def __init__(self, column_name):
-        pass
-    def clause(table):
-        raise NotImplementedError('abstract method must be overridden')
-
-
-class ListPartition(Partition):
-    # mapping is a dict of str to value
-    def __init__(self, column_name, mapping, level=1):
-        return
-    def clause(table):
-        raise NotImplementedError('abstract method must be overridden')
-
-
-class RangePartition(Partition):
-    def __init__(self, column_name, start, end, every, level=1):
-        return
-    def clause(table):
-        raise NotImplementedError('abstract method must be overridden')
-
-
-
-def format_partition_value(type_, value):
-    '''
-    Cast an input value based on the SQL type. This is done so
-    that we can use the repr function to insert the value into
-    RAW SQL
-
-    Args:
-        type_: an sqlalchemy type instance e.x. TEXT()
-        value: value to cast
-
-    Returns:
-        str: the value cast to its python equivalent and represented as a string
-
-    Note:
-        uses double dollar sign quoted strings for strings containing single quotes https://www.postgresql.org/docs/current/static/sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING
-    '''
-    if type_.python_type in [int, float, decimal.Decimal]:
-        return str(type_.python_type(value))
-    elif type_.python_type == str:
-        if '\'' in value:
-            return '$${}$$'.format(value)
-        else:
-            return '\'{}\''.format(value)
-    elif type_.python_type == bool:
-        if str(value).lower() in ['t', 'true', '1']:
-            return 'TRUE'
-        elif str(value).lower() in ['f', 'false', '0']:
-            return 'FALSE'
-    raise NotImplementedError('unsupported type ({}) for the given value ({}) in hawq has not been implemented'.format(
-        type_.python_type, value
-    ))
-
-
-def valid_partition_name(name):
-    '''
-    Checks that a partition name is word characters only (to avoid injection)
-
-    Args:
-        name (str): name of the partition
-
-    Returns:
-        str: the input name
-
-    Raises:
-        ValueError: when an invalid partition name is input
-    '''
-    if not re.match(r'^[a-z]\w+$', str(name), re.IGNORECASE):
-        raise ValueError('invalid partition name ){})'.format(name))
-    else:
-        return name
 
 
 def partition_clause(table, partition_by):
@@ -104,8 +30,9 @@ def partition_clause(table, partition_by):
     Returns:
         str: the partition clause
     '''
-    #print(partition_by)
-    return "test"
+    clause = partition_by.clause()
+
+    return clause
 
 """     column_name, partitions = partition_by
     column = table.columns.get(column_name)
@@ -123,8 +50,8 @@ def partition_clause(table, partition_by):
         column_name,
         '\n'.join(partition_statments)
     )
-    return statement
- """
+    return statement """
+
 
 def with_clause(table_opts):
     '''

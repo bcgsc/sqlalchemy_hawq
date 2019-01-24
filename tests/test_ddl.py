@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.dialects import postgresql
 
 
-from hawq_sqlalchemy.ddl import format_partition_value
+from hawq_sqlalchemy.partition import format_partition_value
 
 
 class TestFormatPartitionValue:
