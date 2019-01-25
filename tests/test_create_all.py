@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.schema import CreateTable, Index
-from hawq_sqlalchemy.partition import *
+from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
 
 @pytest.fixture
 def engine_spy():

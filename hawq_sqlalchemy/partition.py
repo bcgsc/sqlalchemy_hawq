@@ -1,23 +1,36 @@
 import re
 import decimal
 
-
-from sqlalchemy.dialects import postgresql
-from sqlalchemy import schema
-from sqlalchemy.sql import expression
+""" Partition and Subpartition class definitions and supporting funcs.
+ """
 
 
+""" Base class. Implements methods for checking partition name 
+    and assembling subpartition clauses.
+ """
 
 class Partition:
-    def __init__(self, column_name):
+    def __init__(self, column_name, subpartitions = []):
+        self.column_name = column_name
+        self.subpartitions = subpartitions
         pass
+
+    """ 
+    Args: the table to partition.
+    Returns: the column to partition the table on, if found. 
+    Raises: ValueError if column to partition on is not found in the table. """
 
     def partition_column(self, table):
         column = table.columns.get(self.column_name)
         if column is None:
             raise ValueError('Column ({}) to use for partitioning not found'.format(self.column_name))
         return column
-        
+
+
+    """ 
+    Args: the table to partition.
+    Returns: the assembled subpartition statements. """
+
     def get_subpartition_statements(self, table):
         subpartition_statements = []
         for item in self.subpartitions:
@@ -29,7 +42,9 @@ class Partition:
 
 
 
-
+""" ListPartition class. Implements method for assembling list-style partition definitions
+and list partition clause.
+ """
 
 class ListPartition(Partition):
     # mapping is a dict of str to value
@@ -37,6 +52,11 @@ class ListPartition(Partition):
         self.column_name = column_name
         self.mapping = mapping
         self.subpartitions = subpartitions
+
+
+    """ 
+    Args: the column to partition on, '' or 'SUB' partition level.
+    Returns: the assembled partition statements. """
 
     def get_partition_statements(self, column, partition_level=''):
         partition_statements = []
@@ -47,6 +67,8 @@ class ListPartition(Partition):
                 format_partition_value(column.type, value)
              ))
         return partition_statements
+
+
 
     def clause(self, table):
         column = self.partition_column(table)
@@ -67,6 +89,9 @@ class ListPartition(Partition):
 
 
 
+
+""" Implements method for generating list subpartition clause. """
+
 class ListSubpartition(ListPartition):
     def clause(self, table):
         column = self.partition_column(table)
@@ -84,6 +109,8 @@ class ListSubpartition(ListPartition):
         return statement
 
 
+
+""" Implements method for generating range partition clause. """
 
 class RangePartition(Partition):
     def __init__(self, column_name, start, end, every, subpartitions = []):
@@ -110,6 +137,8 @@ class RangePartition(Partition):
         return statement
 
 
+
+""" Implements method for generating range subpartition clause. """
 
 class RangeSubpartition(RangePartition):
     def clause(self, table):

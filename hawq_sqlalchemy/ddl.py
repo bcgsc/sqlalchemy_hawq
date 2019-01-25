@@ -2,14 +2,11 @@
 Data definition language support for the Apache Hawq database
 '''
 
-import re
-import decimal
-
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
 from sqlalchemy.sql import expression
-from .partition import *
+from .partition import partition_clause
 
 
 
