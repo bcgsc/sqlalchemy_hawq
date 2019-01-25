@@ -22,14 +22,6 @@ class Partition:
     """
 
     def __init__(self, column_name, subpartitions=[]):
-        """Initializes a Partition.
-
-        Args:
-            column_name (str): the name of the column to partition on.
-            subpartitions (:obj:`list` of Subartitions, optional): any subpartitions
-                to include in the partition plan.
-
-        """
         self.column_name = column_name
         self.subpartitions = subpartitions
 
@@ -312,7 +304,7 @@ def partition_clause(table, partition_by):
 
     Args:
         table (sqlalchemy.schema.Table): the table being partitioned
-        partition_by (Partition object):
+        partition_by (Partition):
             the Range- or List- partition object consisting of column name,
             partition args, and subpartition array
 
