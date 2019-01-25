@@ -107,7 +107,7 @@ class ListPartition(Partition):
         """
         partition_statements = []
         for name, value in self.mapping.items():
-            partition_statements.append('\t{}PARTITION {} VALUES ({}),'.format(
+            partition_statements.append("""    {}PARTITION {} VALUES ({}),""".format(
                 partition_level,
                 valid_partition_name(name),
                 format_partition_value(column.type, value)
@@ -128,15 +128,14 @@ class ListPartition(Partition):
         partition_statements = self.get_partition_statements(column)
         subpartition_statements = self.get_subpartition_statements(table)
 
-        statement = 'PARTITION BY LIST ({})\
-        {}\
-        \n(\
-        \n{}\
-        \n\tDEFAULT PARTITION other\
-        \n)'.format(
-            self.column_name,
-            '\n'.join(subpartition_statements),
-            '\n'.join(partition_statements)
+        statement = """PARTITION BY LIST ({}){}
+(
+{}
+    DEFAULT PARTITION other
+)""".format(
+            self.column_name,"""
+""".join(subpartition_statements),"""
+""".join(partition_statements)
         )
         return statement
 
@@ -161,14 +160,15 @@ class ListSubpartition(ListPartition):
         column = self.partition_column(table)
         partition_statements = self.get_partition_statements(column, 'SUB')
 
-        statement = '\tSUBPARTITION BY LIST ({})\
-        \n\tSUBPARTITION TEMPLATE\
-        \n\t(\
-        \n\t{}\
-        \n\t\tDEFAULT SUBPARTITION other\
-        \n\t)'.format(
+        statement = """    SUBPARTITION BY LIST ({})
+    SUBPARTITION TEMPLATE
+    (
+    {}
+        DEFAULT SUBPARTITION other
+    )""".format(
             self.column_name,
-            '\n\t'.join(partition_statements)
+            """
+    """.join(partition_statements)
         )
         return statement
 
@@ -209,14 +209,14 @@ class RangePartition(Partition):
         self.partition_column(table)  # raises an error if column_name is invalid
         subpartition_statements = self.get_subpartition_statements(table)
 
-        statement = 'PARTITION BY RANGE ({})\
-        {}\
-        \n(\
-        \n\tSTART ({}) END ({}) EVERY ({}),\
-        \n\tDEFAULT PARTITION extra\
-        \n)'.format(
+        statement = """PARTITION BY RANGE ({}){}
+(
+    START ({}) END ({}) EVERY ({}),
+    DEFAULT PARTITION extra
+)""".format(
             self.column_name,
-            '\n'.join(subpartition_statements),
+            """
+""".join(subpartition_statements),
             self.start, self.end, self.every
         )
         return statement
@@ -241,12 +241,12 @@ class RangeSubpartition(RangePartition):
 
         self.partition_column(table)  # raises an error if column_name is invalid
 
-        statement = '\tSUBPARTITION BY RANGE ({})\
-        \n\tSUBPARTITION TEMPLATE\
-        \n\t(\
-        \n\t\tSTART ({}) END ({}) EVERY ({}),\
-        \n\t\tDEFAULT SUBPARTITION extra\
-        \n\t)'.format(
+        statement = """    SUBPARTITION BY RANGE ({})
+    SUBPARTITION TEMPLATE
+    (
+        START ({}) END ({}) EVERY ({}),
+        DEFAULT SUBPARTITION extra
+    )""".format(
             self.column_name,
             self.start, self.end, self.every
         )

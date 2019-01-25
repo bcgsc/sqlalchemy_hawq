@@ -49,14 +49,13 @@ class TestCreateAll:
 )
 WITH (appendonly=True)
 DISTRIBUTED BY (chrom)
-PARTITION BY LIST (chrom)                
-(        
-	PARTITION chr1 VALUES ('1'),
-	PARTITION chr2 VALUES ('2'),
-	PARTITION chr3 VALUES ('3'),        
-	DEFAULT PARTITION other        
+PARTITION BY LIST (chrom)
+(
+    PARTITION chr1 VALUES ('1'),
+    PARTITION chr2 VALUES ('2'),
+    PARTITION chr3 VALUES ('3'),
+    DEFAULT PARTITION other
 )'''
-
         assert expected == engine_spy.sql.strip()
 
     def test_distributed_by(self, base, engine_spy):
@@ -96,14 +95,15 @@ DISTRIBUTED BY (chrom)'''
         expected = '''CREATE TABLE "MockTable" (
 	chrom TEXT NOT NULL
 )
-PARTITION BY LIST (chrom)                
-(        
-	PARTITION chr1 VALUES ('1'),
-	PARTITION chr2 VALUES ('2'),
-	PARTITION chr3 VALUES ('3'),        
-	DEFAULT PARTITION other        
+PARTITION BY LIST (chrom)
+(
+    PARTITION chr1 VALUES ('1'),
+    PARTITION chr2 VALUES ('2'),
+    PARTITION chr3 VALUES ('3'),
+    DEFAULT PARTITION other
 )'''
         assert expected == engine_spy.sql.strip()
+
     def test_partition_by_range(self, base, engine_spy):
 
         class MockTable(base):
@@ -121,10 +121,10 @@ PARTITION BY LIST (chrom)
         expected = '''CREATE TABLE "MockTable" (
 	chrom INTEGER NOT NULL
 )
-PARTITION BY RANGE (chrom)                
-(        
-	START (0) END (10) EVERY (2),        
-	DEFAULT PARTITION extra        
+PARTITION BY RANGE (chrom)
+(
+    START (0) END (10) EVERY (2),
+    DEFAULT PARTITION extra
 )'''
         assert expected == engine_spy.sql.strip()
         print(engine_spy.sql.strip())
@@ -153,25 +153,25 @@ PARTITION BY RANGE (chrom)
 	month INTEGER, 
 	chrom TEXT
 )
-PARTITION BY RANGE (year)        
-	SUBPARTITION BY RANGE (month)        
-	SUBPARTITION TEMPLATE        
-	(        
-		START (1) END (13) EVERY (1),        
-		DEFAULT SUBPARTITION extra        
-	)
+PARTITION BY RANGE (year)
+    SUBPARTITION BY RANGE (month)
+    SUBPARTITION TEMPLATE
+    (
+        START (1) END (13) EVERY (1),
+        DEFAULT SUBPARTITION extra
+    )
 
-	SUBPARTITION BY LIST (chrom)        
-	SUBPARTITION TEMPLATE        
-	(        
-		SUBPARTITION chr1 VALUES ('1'),
-		SUBPARTITION chr2 VALUES ('2'),
-		SUBPARTITION chr3 VALUES ('3'),        
-		DEFAULT SUBPARTITION other        
-	)        
-(        
-	START (2002) END (2012) EVERY (1),        
-	DEFAULT PARTITION extra        
+    SUBPARTITION BY LIST (chrom)
+    SUBPARTITION TEMPLATE
+    (
+        SUBPARTITION chr1 VALUES ('1'),
+        SUBPARTITION chr2 VALUES ('2'),
+        SUBPARTITION chr3 VALUES ('3'),
+        DEFAULT SUBPARTITION other
+    )
+(
+    START (2002) END (2012) EVERY (1),
+    DEFAULT PARTITION extra
 )'''
         assert expected == engine_spy.sql.strip()
 
@@ -201,25 +201,25 @@ PARTITION BY RANGE (year)
 	month INTEGER, 
 	chrom TEXT
 )
-PARTITION BY LIST (chrom)        
-	SUBPARTITION BY RANGE (year)        
-	SUBPARTITION TEMPLATE        
-	(        
-		START (2002) END (2012) EVERY (1),        
-		DEFAULT SUBPARTITION extra        
-	)
+PARTITION BY LIST (chrom)
+    SUBPARTITION BY RANGE (year)
+    SUBPARTITION TEMPLATE
+    (
+        START (2002) END (2012) EVERY (1),
+        DEFAULT SUBPARTITION extra
+    )
 
-	SUBPARTITION BY RANGE (month)        
-	SUBPARTITION TEMPLATE        
-	(        
-		START (1) END (13) EVERY (1),        
-		DEFAULT SUBPARTITION extra        
-	)        
-(        
-	PARTITION chr1 VALUES ('1'),
-	PARTITION chr2 VALUES ('2'),
-	PARTITION chr3 VALUES ('3'),        
-	DEFAULT PARTITION other        
+    SUBPARTITION BY RANGE (month)
+    SUBPARTITION TEMPLATE
+    (
+        START (1) END (13) EVERY (1),
+        DEFAULT SUBPARTITION extra
+    )
+(
+    PARTITION chr1 VALUES ('1'),
+    PARTITION chr2 VALUES ('2'),
+    PARTITION chr3 VALUES ('3'),
+    DEFAULT PARTITION other
 )'''
         assert expected == engine_spy.sql.strip()
 
