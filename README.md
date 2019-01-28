@@ -55,7 +55,12 @@ Hawq specific table arguments are also supported (Not all features are supported
 | Argument | Type | Example | Notes |
 |----------|------|---------|-------|
 | hawq_distributed_by | str | `'column_name'` | |
-| hawq_partition_by | tuple of str and dict by str | `('column_name', {'part1': 1, 'part2': 2})` | Currently only supports parition by list and will always create a default partition of other |
+| hawq_partition_by | RangePartition or ListPartition | 
+                    `'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [
+                        RangeSubpartition('year', 2002, 2012, 1),
+                        RangeSubpartition('month', 1, 13, 1),
+                    ])`
+                     | Does not currently support range partitioning on dates |
 | hawq_apppendonly | bool | `True` | |
 | hawq_orientation | str | `'ROW'` | expects one of `{'ROW', 'PARQUET'}` |
 | hawq_compresstype | str | `'ZLIB'` | expects one of `{'ZLIB', 'SNAPPY', 'GZIP', 'NONE'}` |
