@@ -56,7 +56,7 @@ Hawq specific table arguments are also supported (Not all features are supported
 |----------|------|---------|-------|
 | hawq_distributed_by | str | `'column_name'` | |
 | hawq_partition_by | RangePartition or ListPartition | 
-                    `'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [
+                    `ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [
                         RangeSubpartition('year', 2002, 2012, 1),
                         RangeSubpartition('month', 1, 13, 1),
                     ])`
