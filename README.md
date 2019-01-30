@@ -8,9 +8,9 @@ database.
 
 ### Install (For developers)
 
-clone this repository
-
 ```bash
+
+clone this repository
 git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/hawq_sqlalchemy.git
 cd hawq_sqlalchemy
 ```
@@ -55,12 +55,7 @@ Hawq specific table arguments are also supported (Not all features are supported
 | Argument | Type | Example | Notes |
 |----------|------|---------|-------|
 | hawq_distributed_by | str | `'column_name'` | |
-| hawq_partition_by | RangePartition or ListPartition | 
-                    `ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [
-                        RangeSubpartition('year', 2002, 2012, 1),
-                        RangeSubpartition('month', 1, 13, 1),
-                    ])`
-                     | Does not currently support range partitioning on dates |
+| hawq_partition_by | RangePartition or ListPartition | `ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [RangeSubpartition('year', 2002, 2012, 1),RangeSubpartition('month', 1, 13, 1),])` | Does not currently support range partitioning on dates |
 | hawq_apppendonly | bool | `True` | |
 | hawq_orientation | str | `'ROW'` | expects one of `{'ROW', 'PARQUET'}` |
 | hawq_compresstype | str | `'ZLIB'` | expects one of `{'ZLIB', 'SNAPPY', 'GZIP', 'NONE'}` |
