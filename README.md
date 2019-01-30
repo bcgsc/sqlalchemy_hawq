@@ -64,7 +64,7 @@ Hawq specific table arguments are also supported (Not all features are supported
 
 
 Partition arguments are 
-RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{value_to_partition_on:name_of_partition}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition. 
+RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{name_of_partition=str:value_to_partition_on=str}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition. 
 
 Subpartitions expect the same params as Partitions but without a nested subpartition array. 
 
