@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.schema import CreateTable, Index
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
+from hawq_sqlalchemy.ddl import Point
 
 @pytest.fixture
 def engine_spy():
@@ -383,3 +384,43 @@ WITH (compresslevel={})'''.format(compresslevel)
 
         with pytest.raises(ValueError):
             metadata.create_all(engine_spy.engine)
+
+    def test_point_type(self, base, engine_spy):
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            ptest = Column('ptest', Point, primary_key=True)
+
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+        expected = '''CREATE TABLE "MockTable" (
+\tptest POINT NOT NULL
+)'''
+        assert expected == engine_spy.sql.strip()
+
+    def test_insert_as_point_type(self, base, engine_spy):
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            ptest = Column('ptest', Point, primary_key=True)
+
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+
+        expected = '''CREATE TABLE "MockTable" (
+\tptest POINT NOT NULL
+)'''
+        assert expected == engine_spy.sql.strip()
+
+    def test_retrieve_point_type(self, base, engine_spy):
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            ptest = Column('ptest', Point, primary_key=True)
+
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+        expected = '''CREATE TABLE "MockTable" (
+\tptest POINT NOT NULL
+)'''
+        assert expected == engine_spy.sql.strip()

@@ -5,9 +5,9 @@ Data definition language support for the Apache Hawq database
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
+from sqlalchemy import types
 from sqlalchemy.sql import expression
 from .partition import partition_clause
-
 
 
 def with_clause(table_opts):
@@ -124,3 +124,28 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
             )) if p is not None
         )
 
+
+class Point(types.UserDefinedType):
+    def get_col_spec(value):
+        return "POINT"
+
+    def bind_expression(value):
+        if isinstance(value, list) and len(value) == 2:
+            result = "POINT(%d,%d)" % value[0], value[1]
+            return result
+        else:
+            return None
+
+    def bind_processor(self, dialect):
+        def process(value):
+            if isinstance(value, list) and len(value) == 2:
+                result = "POINT(%d,%d)" % value[0], value[1]
+                return result
+            else:
+                return None
+        return process
+
+    def result_processor(self, dialect, coltype):
+        def process(value):
+            return [5,6]
+        return process
