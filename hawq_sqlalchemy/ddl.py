@@ -1,12 +1,12 @@
 '''
 Data definition language support for the Apache Hawq database
 '''
+import re
 
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
 from sqlalchemy import types
-from sqlalchemy.sql import expression
 from .partition import partition_clause
 
 
@@ -53,7 +53,6 @@ def with_clause(table_opts):
         return ''
     with_statement = ', '.join(['{}={}'.format(k, v) for k, v in with_statement.items()])
     return '\nWITH ({})'.format(with_statement)
-
 
 
 class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
@@ -114,38 +113,70 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
         return ', \n\t'.join(
             p for p in
             (self.process(constraint)
-                for constraint in constraints
-                if (
-                    constraint._create_rule is None or
-                    constraint._create_rule(self))
-                and (
-                    not self.dialect.supports_alter or
-                    not getattr(constraint, 'use_alter', False)
-            )) if p is not None
+             for constraint in constraints
+             if (
+                 constraint._create_rule is None or
+                 constraint._create_rule(self)
+             )
+             and (
+                 not self.dialect.supports_alter or
+                 not getattr(constraint, 'use_alter', False)
+             )
+            ) if p is not None
         )
 
 
 class Point(types.UserDefinedType):
+    """
+    Partial implementation of the Postgresql Point class, available in
+    HAWQ dbs but not in Sqlalchemy.
+
+    Provides storage and retrieval functions but does not include
+    comparison or math ops.
+    """
     def get_col_spec(value):
+        """
+        Returns type name.
+        get_col_spec must be overridden when implementing a custom class.
+        """
         return "POINT"
 
-    def bind_expression(value):
+    def ints_to_point(value):
+        """
+        Takes an input array of length 2 and outputs
+        a SQL Point string.
+        [x,y] -> Point((float x), (float y))
+        """
         if isinstance(value, list) and len(value) == 2:
-            result = "POINT(%d,%d)" % value[0], value[1]
-            return result
-        else:
-            return None
+            return "POINT(%s,%s)" % (value[0], value[1])
+        return None
 
     def bind_processor(self, dialect):
-        def process(value):
-            if isinstance(value, list) and len(value) == 2:
-                result = "POINT(%d,%d)" % value[0], value[1]
-                return result
-            else:
-                return None
-        return process
+        """
+        Returns a method to convert the value input in Python
+        to its SQL representation.
+        """
+        return Point.ints_to_point
+
+    def bind_expression(self, bindvalue):
+        """
+        Returns a Python Point object with its value converted
+        to its SQL representation.
+        """
+        bindvalue.value = Point.ints_to_point(bindvalue.value)
+        return bindvalue
 
     def result_processor(self, dialect, coltype):
+        """
+        Returns a Python representation of a SQL Point value.
+        Point((float x),(float y)) -> [float x, float y]
+        """
         def process(value):
-            return [5,6]
+            if value is None:
+                return None
+            match = re.match(r'^POINT\((\S+),(\S+)\)$', value, flags=re.IGNORECASE)
+            if match:
+                lng, lat = value[6:-1].split(',') # 'POINT(135.00,35.00)' => ('135.00', '35.00')
+                return [float(lng), float(lat)]
+            return None
         return process

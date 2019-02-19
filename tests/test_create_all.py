@@ -3,10 +3,19 @@ from unittest import mock
 
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
+from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine, table, column, Table, MetaData
 from sqlalchemy.schema import CreateTable, Index
+from sqlalchemy import func, select, insert
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
 from hawq_sqlalchemy.ddl import Point
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql import dml
+from sqlalchemy.orm import configure_mappers
+from sqlalchemy import insert
+import hawq_sqlalchemy
+from unittest.mock import MagicMock
+
 
 @pytest.fixture
 def engine_spy():
@@ -16,9 +25,12 @@ def engine_spy():
             self.engine = None
 
         def __call__(self, sql, *args, **kwargs):
-            self.sql = str(sql.compile(dialect=self.engine.dialect))
+            print("in CALL", type(sql))
+            test = str(sql.compile(dialect=self.engine.dialect))
+            self.sql = test
+            print(test)
     spy = MetadataDumpSpy()
-    engine = create_engine('hawq://localhost/creisle', strategy='mock', executor=spy)
+    engine = create_engine('hawq://localhost/elewis', strategy='mock', executor=spy)
     spy.engine = engine
     return spy
 
@@ -398,29 +410,47 @@ WITH (compresslevel={})'''.format(compresslevel)
 )'''
         assert expected == engine_spy.sql.strip()
 
-    def test_insert_as_point_type(self, base, engine_spy):
+    def test_compile_point_type_from_list_input(self, base, engine_spy):
+
+        
         class MockTable(base):
             __tablename__ = 'MockTable'
-            ptest = Column('ptest', Point, primary_key=True)
 
+            id = Column('id', Integer, primary_key=True)
+            ptest = Column('ptest', Point)
 
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
 
-        expected = '''CREATE TABLE "MockTable" (
-\tptest POINT NOT NULL
-)'''
-        assert expected == engine_spy.sql.strip()
+        ins = MockTable.__table__.insert().values(id=3, ptest=[3,4])
+        params = ins.compile().params
+        expected =  {'id': 3, 'ptest': 'POINT(3,4)'}
+
+        assert expected == params
+
 
     def test_retrieve_point_type(self, base, engine_spy):
+
+        engine = create_engine('sqlite:///:memory:')
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+
         class MockTable(base):
             __tablename__ = 'MockTable'
-            ptest = Column('ptest', Point, primary_key=True)
 
+            id = Column('id', Integer, primary_key=True)
+            ptest = Column('ptest', Point)
 
         metadata = MockTable.__table__.metadata
-        metadata.create_all(engine_spy.engine)
-        expected = '''CREATE TABLE "MockTable" (
-\tptest POINT NOT NULL
-)'''
-        assert expected == engine_spy.sql.strip()
+        metadata.create_all(engine)
+
+        ins = MockTable(id=10, ptest=[11,12])
+        session.add(ins)
+        session.commit()
+
+        x = session.query(MockTable).all()
+
+
+        expected = [11.0,12.0]
+        assert expected == x[0].ptest
