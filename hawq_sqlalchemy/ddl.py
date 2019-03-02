@@ -149,7 +149,9 @@ class Point(types.UserDefinedType):
         """
         if isinstance(value, list) and len(value) == 2:
             return "POINT(%s,%s)" % (value[0], value[1])
-        return None
+        if isinstance(value, str):
+            return value
+        return '999'
 
     def bind_processor(self, dialect):
         """

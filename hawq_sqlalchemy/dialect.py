@@ -23,3 +23,9 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
         })
     ]
     ddl_compiler = HawqDDLCompiler
+
+    def returning_clause(self, stmt, returning_cols):
+        
+        """Silently overrides returning_clause in psql dialect."""
+        
+        return "RETURNING TEST FAIL"

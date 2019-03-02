@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine, table, column, Table, MetaData
+from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine, table, column, Table, MetaData, ForeignKey
 from sqlalchemy.schema import CreateTable, Index
 from sqlalchemy import func, select, insert
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
@@ -12,9 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import dml
 from sqlalchemy.orm import configure_mappers
-from sqlalchemy import insert
 import hawq_sqlalchemy
-from unittest.mock import MagicMock
 
 
 @pytest.fixture
@@ -25,10 +23,7 @@ def engine_spy():
             self.engine = None
 
         def __call__(self, sql, *args, **kwargs):
-            print("in CALL", type(sql))
-            test = str(sql.compile(dialect=self.engine.dialect))
-            self.sql = test
-            print(test)
+            self.sql = str(sql.compile(dialect=self.engine.dialect))
     spy = MetadataDumpSpy()
     engine = create_engine('hawq://localhost/elewis', strategy='mock', executor=spy)
     spy.engine = engine
@@ -397,6 +392,7 @@ WITH (compresslevel={})'''.format(compresslevel)
         with pytest.raises(ValueError):
             metadata.create_all(engine_spy.engine)
 
+
     def test_point_type(self, base, engine_spy):
         class MockTable(base):
             __tablename__ = 'MockTable'
@@ -427,30 +423,3 @@ WITH (compresslevel={})'''.format(compresslevel)
         expected =  {'id': 3, 'ptest': 'POINT(3,4)'}
 
         assert expected == params
-
-
-    def test_retrieve_point_type(self, base, engine_spy):
-
-        engine = create_engine('sqlite:///:memory:')
-        Session = sessionmaker(bind=engine)
-        session = Session()
-
-
-        class MockTable(base):
-            __tablename__ = 'MockTable'
-
-            id = Column('id', Integer, primary_key=True)
-            ptest = Column('ptest', Point)
-
-        metadata = MockTable.__table__.metadata
-        metadata.create_all(engine)
-
-        ins = MockTable(id=10, ptest=[11,12])
-        session.add(ins)
-        session.commit()
-
-        x = session.query(MockTable).all()
-
-
-        expected = [11.0,12.0]
-        assert expected == x[0].ptest
