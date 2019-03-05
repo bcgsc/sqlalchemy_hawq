@@ -33,9 +33,10 @@ class Point(UserDefinedType):
 
     def bind_func(value):
         """
-        Takes an input value and converts it to a SQL Point string if possible.
-        If the value is a string, does NOT check for correctness.
-        Raises a custom exception including the value it failed on.
+        Takes an input value and, if it's a dict with values for keys 'x' and 'y',
+        outputs a SQL Point with those values.
+        If the value is already a string, this func does NOT check for correctness.
+        Otherwise, raises a custom exception including the value it failed on.
         """
         if (isinstance(value, dict)
                 and 'x' in value and 'y' in value
