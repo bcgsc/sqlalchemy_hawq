@@ -87,11 +87,11 @@ def test_engine(request, username, password, echo_sql):
     engine.execute("GRANT ALL PRIVILEGES ON SCHEMA " + schemaname + " TO refactor_admin;")
 
     yield engine
-    """ try:
+    try:
         engine.execute("drop schema " + schemaname + " cascade;")
     except (ProgrammingError) as prog_e:
         does_not_exist = "schema \'" + schemaname + "\' does not exist\n"
         if prog_e.orig.args[0] != does_not_exist:
             print("Unexpected error:", prog_e.orig)
-            return """
+            return
     engine.dispose()
