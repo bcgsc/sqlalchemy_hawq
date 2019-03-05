@@ -25,7 +25,7 @@ def engine_spy():
         def __call__(self, sql, *args, **kwargs):
             self.sql = str(sql.compile(dialect=self.engine.dialect))
     spy = MetadataDumpSpy()
-    engine = create_engine('hawq://localhost/elewis', strategy='mock', executor=spy)
+    engine = create_engine('hawq://localhost/dummy_user', strategy='mock', executor=spy)
     spy.engine = engine
     return spy
 

@@ -29,7 +29,6 @@ def base():
 class TestWithLiveConnection:
 
     def test_live_setup(self, base, test_engine):
-
         class MockTable(base):
             __tablename__ = 'mocktable'
             id = Column('id', Integer, primary_key=True)
