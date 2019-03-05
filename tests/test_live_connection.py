@@ -44,8 +44,9 @@ class TestWithLiveConnection:
         Session = sessionmaker(bind=test_engine)
         session = Session()
         x = session.query(MockTable).all()
-
+        session.close()
         print(test_engine.dialect)
+        #engine.execute("drop schema " + schemaname + " cascade;")
         assert x[0].test == 5
 
 
@@ -68,6 +69,6 @@ class TestWithLiveConnection:
         Session = sessionmaker(bind=test_engine)
         session = Session()
         x = session.query(MockTable2).all()
-
+        session.close()
         expected = (14, 201)
         assert expected == x[0].ptest
