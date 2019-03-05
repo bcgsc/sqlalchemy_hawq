@@ -168,7 +168,6 @@ PARTITION BY RANGE (year)
         START (1) END (13) EVERY (1),
         DEFAULT SUBPARTITION extra
     )
-
     SUBPARTITION BY LIST (chrom)
     SUBPARTITION TEMPLATE
     (

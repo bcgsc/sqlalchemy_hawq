@@ -116,7 +116,7 @@ class ListPartition(Partition):
         Returns:
             statement(str): the partition clause for this table.
 
-         """
+        """
         column = self.partition_column(table)
         partition_statements = self.get_partition_statements(column)
         subpartition_statements = self.get_subpartition_statements(table)
@@ -125,11 +125,9 @@ class ListPartition(Partition):
 (
 {}
     DEFAULT PARTITION other
-)""".format(
-    self.column_name, """
-""".join(subpartition_statements), """
-""".join(partition_statements)
-        )
+)""".format(self.column_name,
+            "\n".join(subpartition_statements),
+            "\n".join(partition_statements))
         return statement
 
 
@@ -158,11 +156,7 @@ class ListSubpartition(ListPartition):
     (
     {}
         DEFAULT SUBPARTITION other
-    )""".format(
-        self.column_name,
-        """
-    """.join(partition_statements)
-        )
+    )""".format(self.column_name, "\n    ".join(partition_statements))
         return statement
 
 
@@ -206,12 +200,11 @@ class RangePartition(Partition):
 (
     START ({}) END ({}) EVERY ({}),
     DEFAULT PARTITION extra
-)""".format(
-    self.column_name,
-    """
-""".join(subpartition_statements),
-    self.start, self.end, self.every
-        )
+)""".format(self.column_name,
+            "".join(subpartition_statements),
+            self.start,
+            self.end,
+            self.every)
         return statement
 
 
@@ -239,10 +232,7 @@ class RangeSubpartition(RangePartition):
     (
         START ({}) END ({}) EVERY ({}),
         DEFAULT SUBPARTITION extra
-    )""".format(
-        self.column_name,
-        self.start, self.end, self.every
-        )
+    )""".format(self.column_name, self.start, self.end, self.every)
         return statement
 
 
