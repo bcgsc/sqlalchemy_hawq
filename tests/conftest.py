@@ -9,7 +9,7 @@ from sqlalchemy.schema import CreateSchema
 def pytest_addoption(parser):
     parser.addoption("--username", action="store", default=None, help="gateway username")
     parser.addoption("--password", action="store", default=None, help="password for gateway user")
-    parser.addoption("--echo", action="store", default=None, help="echo commands to db")
+    parser.addoption("--echo", action="store", default=False, help="echo commands to db")
 
 
 @pytest.fixture(scope='session')
@@ -31,7 +31,7 @@ def password(request):
 @pytest.fixture(scope='session')
 def echo_sql(request):
     echo = request.config.getoption("--echo")
-    if echo is None or echo is False:
+    if echo is False:
         return False
     return True
 
