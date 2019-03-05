@@ -198,7 +198,7 @@ class Point(UserDefinedType):
         def process(value):
             if value is None:
                 return None
-            match = re.match(r'^\((\S+),(\S+)\)$', value, flags=re.IGNORECASE)
+            match = re.match(r'^\((\d+(\.\d+)?),(\d+(\.\d+)?)\)$', value)
             if match:
                 lng, lat = value[1:-1].split(',')  # '(135.00,35.00)' => ('135.00', '35.00')
                 return (float(lng), float(lat))
