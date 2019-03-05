@@ -418,8 +418,8 @@ WITH (compresslevel={})'''.format(compresslevel)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
 
-        ins = MockTable.__table__.insert().values(id=3, ptest=[3,4])
+        ins = MockTable.__table__.insert().values(id=3, ptest={'x':3,'y':4})
         params = ins.compile().params
-        expected =  {'id': 3, 'ptest': 'POINT(3,4)'}
+        expected =  {'id': 3, 'ptest': '(3,4)'}
 
         assert expected == params

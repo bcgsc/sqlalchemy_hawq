@@ -9,7 +9,7 @@ from sqlalchemy.schema import CreateSchema
 def pytest_addoption(parser):
     parser.addoption("--username", action="store", default=None, help="gateway username")
     parser.addoption("--password", action="store", default=None, help="password for gateway user")
-    parser.addoption("--echo_sql", action="store", default=None, help="echo commands to db")
+    parser.addoption("--echo", action="store", default=None, help="echo commands to db")
 
 
 @pytest.fixture(scope='session')
@@ -30,8 +30,8 @@ def password(request):
 
 @pytest.fixture(scope='session')
 def echo_sql(request):
-    echo = request.config.getoption("--echo_sql")
-    if echo is None:
+    echo = request.config.getoption("--echo")
+    if echo is None or echo is False:
         return False
     return True
 
@@ -67,7 +67,6 @@ def test_engine(request, username, password, echo_sql):
     engine.execute("GRANT ALL PRIVILEGES ON SCHEMA " + schemaname + " TO refactor_admin;")
 
     yield engine
-    print("teardown test schema")
     """ try:
         engine.execute("drop schema " + schemaname + " cascade;")
     except (ProgrammingError) as prog_e:

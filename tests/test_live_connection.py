@@ -60,14 +60,15 @@ class TestWithLiveConnection:
         base.metadata.create_all(test_engine)
 
         conn = test_engine.connect()
-        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest=[11,12])
+        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest={'x':14,'y':201})
         print(ins.compile().params)
         conn.execute(ins)
+        
 
         Session = sessionmaker(bind=test_engine)
         session = Session()
         x = session.query(MockTable2).all()
 
-        expected = [11.0,12.0]
+        expected = (14,201)
         assert expected == x[0].ptest
         

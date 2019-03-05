@@ -9,6 +9,9 @@ from sqlalchemy import schema
 from sqlalchemy import types
 from .partition import partition_clause
 
+from sqlalchemy.types import UserDefinedType
+from sqlalchemy.exc import StatementError
+
 
 def with_clause(table_opts):
     '''
@@ -127,6 +130,7 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
 
 
 class Point(types.UserDefinedType):
+
     """
     Partial implementation of the Postgresql Point class, available in
     HAWQ dbs but not in Sqlalchemy.
@@ -134,6 +138,13 @@ class Point(types.UserDefinedType):
     Provides storage and retrieval functions but does not include
     comparison or math ops.
     """
+    x = None
+    y = None
+    
+
+    def __repr__(self):
+        return "Point(%s,%s)" % self.x, self.y
+
     def get_col_spec(value):
         """
         Returns type name.
@@ -141,17 +152,24 @@ class Point(types.UserDefinedType):
         """
         return "POINT"
 
+    def __init__(self, dictvals=None):
+        if isinstance(dictvals, dict):
+            if dictvals['x'] is not None:
+                self.x = dictvals['x']
+            if dictvals['y'] is not None:
+                self.y = dictvals['y']
+
     def ints_to_point(value):
         """
         Takes an input array of length 2 and outputs
         a SQL Point string.
         [x,y] -> Point((float x), (float y))
         """
-        if isinstance(value, list) and len(value) == 2:
-            return "POINT(%s,%s)" % (value[0], value[1])
+        if isinstance(value, dict):
+            return "(%s,%s)" % (value['x'], value['y'])
         if isinstance(value, str):
             return value
-        return '999'
+        raise StatementError(message='An error occurred in Point.ints_to_point')
 
     def bind_processor(self, dialect):
         """
@@ -162,9 +180,13 @@ class Point(types.UserDefinedType):
 
     def bind_expression(self, bindvalue):
         """
-        Returns a Python Point object with its value converted
-        to its SQL representation.
+        Returns a Python Point object with its x and y values set
+        and its 'value' value converted to its SQL representation.
         """
+        if bindvalue.value['x'] != None:
+            self.x = bindvalue.value['x']
+        if bindvalue.value['y'] != None:
+            self.y = bindvalue.value['y']
         bindvalue.value = Point.ints_to_point(bindvalue.value)
         return bindvalue
 
@@ -176,9 +198,10 @@ class Point(types.UserDefinedType):
         def process(value):
             if value is None:
                 return None
-            match = re.match(r'^POINT\((\S+),(\S+)\)$', value, flags=re.IGNORECASE)
+            match = re.match(r'^\((\S+),(\S+)\)$', value, flags=re.IGNORECASE)
             if match:
-                lng, lat = value[6:-1].split(',') # 'POINT(135.00,35.00)' => ('135.00', '35.00')
-                return [float(lng), float(lat)]
-            return None
+                lng, lat = value[1:-1].split(',') # '(135.00,35.00)' => ('135.00', '35.00')
+                return (float(lng), float(lat))
+            raise StatementError(message='An error occurred in Point.result_processor')
         return process
+
