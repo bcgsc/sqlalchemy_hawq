@@ -1,18 +1,10 @@
-from unittest import mock
-
-
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine, table, column, Table, MetaData, ForeignKey
-from sqlalchemy.schema import CreateTable, Index
-from sqlalchemy import func, select, insert
+from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
+
+
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
 from hawq_sqlalchemy.point import Point
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import dml
-from sqlalchemy.orm import configure_mappers
-import hawq_sqlalchemy
 
 
 @pytest.fixture
@@ -149,10 +141,10 @@ PARTITION BY RANGE (chrom)
                     ])
                 }
             )
-            id = Column('id',Integer(), primary_key = True, autoincrement = False)
-            year = Column('year',Integer())
-            month = Column('month',Integer())
-            chrom = Column('chrom',Text())
+            id = Column('id', Integer(), primary_key=True, autoincrement=False)
+            year = Column('year', Integer())
+            month = Column('month', Integer())
+            chrom = Column('chrom', Text())
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
@@ -195,10 +187,10 @@ PARTITION BY RANGE (year)
                     ])
                 }
             )
-            id = Column('id',Integer(), primary_key = True, autoincrement = False)
-            year = Column('year',Integer())
-            month = Column('month',Integer())
-            chrom = Column('chrom',Text())
+            id = Column('id', Integer(), primary_key=True, autoincrement=False)
+            year = Column('year', Integer())
+            month = Column('month', Integer())
+            chrom = Column('chrom', Text())
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
 
@@ -407,7 +399,6 @@ WITH (compresslevel={})'''.format(compresslevel)
 
     def test_compile_point_type_from_list_input(self, base, engine_spy):
 
-        
         class MockTable(base):
             __tablename__ = 'MockTable'
 
@@ -417,8 +408,8 @@ WITH (compresslevel={})'''.format(compresslevel)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
 
-        ins = MockTable.__table__.insert().values(id=3, ptest={'x':3,'y':4})
+        ins = MockTable.__table__.insert().values(id=3, ptest={'x':3, 'y':4})
         params = ins.compile().params
-        expected =  {'id': 3, 'ptest': '(3,4)'}
+        expected = {'id': 3, 'ptest': '(3,4)'}
 
         assert expected == params

@@ -5,10 +5,8 @@ At the experimental stage.
 
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import configure_mappers
-from sqlalchemy.orm import relationship
 
 
 from hawq_sqlalchemy.point import Point
@@ -32,7 +30,7 @@ class TestWithLiveConnection:
             __tablename__ = 'mocktable'
             id = Column('id', Integer, primary_key=True)
             test = Column('test', Integer)
-            __table_args__ = {'schema':'testschema'}
+            __table_args__ = {'schema': 'testschema'}
 
         base.metadata.create_all(test_engine)
 
@@ -43,12 +41,10 @@ class TestWithLiveConnection:
         conn.execute(ins)
         Session = sessionmaker(bind=test_engine)
         session = Session()
-        x = session.query(MockTable).all()
+        res = session.query(MockTable).all()
         session.close()
-        print(test_engine.dialect)
-        #engine.execute("drop schema " + schemaname + " cascade;")
-        assert x[0].test == 5
 
+        assert res[0].test == 5
 
     def test_point_type_insert_select(self, base, test_engine):
         """
@@ -58,17 +54,17 @@ class TestWithLiveConnection:
             __tablename__ = 'mocktable2'
             id = Column('id', Integer, primary_key=True)
             ptest = Column('ptest', Point)
-            __table_args__ = {'schema':'testschema'}
+            __table_args__ = {'schema': 'testschema'}
         base.metadata.create_all(test_engine)
 
         conn = test_engine.connect()
-        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest={'x':14, 'y':201})
+        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest={'x': 14, 'y': 201})
         print(ins.compile().params)
         conn.execute(ins)
 
         Session = sessionmaker(bind=test_engine)
         session = Session()
-        x = session.query(MockTable2).all()
+        res = session.query(MockTable2).all()
         session.close()
         expected = (14, 201)
-        assert expected == x[0].ptest
+        assert expected == res[0].ptest

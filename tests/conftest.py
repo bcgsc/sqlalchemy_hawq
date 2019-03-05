@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import configure_mappers
-from sqlalchemy.schema import CreateSchema, DropSchema
+from sqlalchemy.schema import CreateSchema
 from sqlalchemy.engine.url import URL
 
 
@@ -89,4 +89,3 @@ def test_engine(request, username, password, echo_sql):
     yield engine
     engine.execute("drop schema " + schemaname + " cascade;")
     engine.dispose()
-    return
