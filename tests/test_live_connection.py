@@ -1,24 +1,17 @@
-from unittest import mock
-
+"""
+Defines pytest tests the require a live db connection.
+At the experimental stage.
+"""
 
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine, table, column, Table, MetaData, ForeignKey
-from sqlalchemy.schema import CreateTable, Index
-from sqlalchemy import func, select, insert
-from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
-from hawq_sqlalchemy.ddl import Point
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql import dml
 from sqlalchemy.orm import configure_mappers
-import hawq_sqlalchemy
-from unittest.mock import MagicMock
-from sqlalchemy.testing.mock import call
-from sqlalchemy.testing.mock import Mock
-from sqlalchemy.testing.mock import patch
-from sqlalchemy.schema import CreateTable
-from sqlalchemy.orm import configure_mappers
+from sqlalchemy.orm import relationship
+
+
+from hawq_sqlalchemy.ddl import Point
 
 
 @pytest.fixture
@@ -27,8 +20,14 @@ def base():
 
 
 class TestWithLiveConnection:
-
+    """
+    A group of tests requiring a live connection.
+    """
     def test_live_setup(self, base, test_engine):
+        """
+        Checks that the live connection works, ie
+        that a table can be made and data entered and queried.
+        """
         class MockTable(base):
             __tablename__ = 'mocktable'
             id = Column('id', Integer, primary_key=True)
@@ -38,9 +37,9 @@ class TestWithLiveConnection:
         base.metadata.create_all(test_engine)
 
         conn = test_engine.connect()
-        
+
         ins = MockTable.__table__.insert(inline=True).values(test=5)
-        
+
         conn.execute(ins)
         Session = sessionmaker(bind=test_engine)
         session = Session()
@@ -50,7 +49,10 @@ class TestWithLiveConnection:
         assert x[0].test == 5
 
 
-    def test_retrieve_point_type(self, base, test_engine):
+    def test_point_type_insert_select(self, base, test_engine):
+        """
+        Checks that point type data can be inserted and selected.
+        """
         class MockTable2(base):
             __tablename__ = 'mocktable2'
             id = Column('id', Integer, primary_key=True)
@@ -59,15 +61,13 @@ class TestWithLiveConnection:
         base.metadata.create_all(test_engine)
 
         conn = test_engine.connect()
-        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest={'x':14,'y':201})
+        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest={'x':14, 'y':201})
         print(ins.compile().params)
         conn.execute(ins)
-        
 
         Session = sessionmaker(bind=test_engine)
         session = Session()
         x = session.query(MockTable2).all()
 
-        expected = (14,201)
+        expected = (14, 201)
         assert expected == x[0].ptest
-        
