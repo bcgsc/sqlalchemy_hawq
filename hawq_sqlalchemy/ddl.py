@@ -6,9 +6,6 @@ import re
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
-from sqlalchemy import types
-from sqlalchemy.types import UserDefinedType
-from sqlalchemy.exc import StatementError
 
 
 from .partition import partition_clause
@@ -128,79 +125,3 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
              )
             ) if p is not None
         )
-
-
-class Point(UserDefinedType):
-
-    """
-    Partial implementation of the Postgresql Point class, available in
-    HAWQ dbs but not in Sqlalchemy.
-
-    Provides storage and retrieval functions but does not include
-    comparison or math ops.
-    """
-    x = None
-    y = None
-
-    def __repr__(self):
-        return "Point(%s,%s)" % self.x, self.y
-
-    def get_col_spec(value):
-        """
-        Returns type name.
-        get_col_spec must be overridden when implementing a custom class.
-        """
-        return "POINT"
-
-    def __init__(self, dictvals=None):
-        if isinstance(dictvals, dict):
-            if dictvals['x'] is not None:
-                self.x = dictvals['x']
-            if dictvals['y'] is not None:
-                self.y = dictvals['y']
-
-    def ints_to_point(value):
-        """
-        Takes an input array of length 2 and outputs
-        a SQL Point string.
-        [x,y] -> Point((float x), (float y))
-        """
-        if isinstance(value, dict):
-            return "(%s,%s)" % (value['x'], value['y'])
-        if isinstance(value, str):
-            return value
-        raise StatementError(message='message='Failed to cast value ({}) to Point type'.format(value)')
-
-    def bind_processor(self, dialect):
-        """
-        Returns a method to convert the value input in Python
-        to its SQL representation.
-        """
-        return Point.ints_to_point
-
-    def bind_expression(self, bindvalue):
-        """
-        Returns a Python Point object with its x and y values set
-        and its 'value' value converted to its SQL representation.
-        """
-        if bindvalue.value['x'] is not None:
-            self.x = bindvalue.value['x']
-        if bindvalue.value['y'] is not None:
-            self.y = bindvalue.value['y']
-        bindvalue.value = Point.ints_to_point(bindvalue.value)
-        return bindvalue
-
-    def result_processor(self, dialect, coltype):
-        """
-        Returns a Python representation of a SQL Point value.
-        Point((float x),(float y)) -> [float x, float y]
-        """
-        def process(value):
-            if value is None:
-                return None
-            match = re.match(r'^\((\d+(\.\d+)?),(\d+(\.\d+)?)\)$', value)
-            if match:
-                lng, lat = value[1:-1].split(',')  # '(135.00,35.00)' => ('135.00', '35.00')
-                return (float(lng), float(lat))
-            raise StatementError(message='message='Failed to cast value ({}) to hawq_sqlalchemy Point type'.format(value)')
-        return process

@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine, t
 from sqlalchemy.schema import CreateTable, Index
 from sqlalchemy import func, select, insert
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
-from hawq_sqlalchemy.ddl import Point
+from hawq_sqlalchemy.point import Point
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import dml

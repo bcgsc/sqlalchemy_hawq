@@ -11,7 +11,7 @@ from sqlalchemy.orm import configure_mappers
 from sqlalchemy.orm import relationship
 
 
-from hawq_sqlalchemy.ddl import Point
+from hawq_sqlalchemy.point import Point
 
 
 @pytest.fixture
