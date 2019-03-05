@@ -7,10 +7,11 @@ import re
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
 from sqlalchemy import types
-from .partition import partition_clause
-
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy.exc import StatementError
+
+
+from .partition import partition_clause
 
 
 def with_clause(table_opts):
@@ -129,7 +130,7 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
         )
 
 
-class Point(types.UserDefinedType):
+class Point(UserDefinedType):
 
     """
     Partial implementation of the Postgresql Point class, available in
@@ -140,7 +141,6 @@ class Point(types.UserDefinedType):
     """
     x = None
     y = None
-    
 
     def __repr__(self):
         return "Point(%s,%s)" % self.x, self.y
@@ -169,7 +169,7 @@ class Point(types.UserDefinedType):
             return "(%s,%s)" % (value['x'], value['y'])
         if isinstance(value, str):
             return value
-        raise StatementError(message='An error occurred in Point.ints_to_point')
+        raise StatementError(message='message='Failed to cast value ({}) to Point type'.format(value)')
 
     def bind_processor(self, dialect):
         """
@@ -183,9 +183,9 @@ class Point(types.UserDefinedType):
         Returns a Python Point object with its x and y values set
         and its 'value' value converted to its SQL representation.
         """
-        if bindvalue.value['x'] != None:
+        if bindvalue.value['x'] is not None:
             self.x = bindvalue.value['x']
-        if bindvalue.value['y'] != None:
+        if bindvalue.value['y'] is not None:
             self.y = bindvalue.value['y']
         bindvalue.value = Point.ints_to_point(bindvalue.value)
         return bindvalue
@@ -200,8 +200,7 @@ class Point(types.UserDefinedType):
                 return None
             match = re.match(r'^\((\S+),(\S+)\)$', value, flags=re.IGNORECASE)
             if match:
-                lng, lat = value[1:-1].split(',') # '(135.00,35.00)' => ('135.00', '35.00')
+                lng, lat = value[1:-1].split(',')  # '(135.00,35.00)' => ('135.00', '35.00')
                 return (float(lng), float(lat))
-            raise StatementError(message='An error occurred in Point.result_processor')
+            raise StatementError(message='message='Failed to cast value ({}) to hawq_sqlalchemy Point type'.format(value)')
         return process
-
