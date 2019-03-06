@@ -58,13 +58,21 @@ class TestWithLiveConnection:
         base.metadata.create_all(test_engine)
 
         conn = test_engine.connect()
-        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest={'x': 14, 'y': 201})
+        ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest=(14, 201))
         print(ins.compile().params)
         conn.execute(ins)
 
         Session = sessionmaker(bind=test_engine)
         session = Session()
         res = session.query(MockTable2).all()
+        for row in res:
+            p = row.ptest
+            print(p)
+
         session.close()
+        ins2 = MockTable2.__table__.insert(inline=True).values(ptest=p)
+        print(ins2.compile().params)
+        conn.execute(ins2)
+
         expected = (14, 201)
         assert expected == res[0].ptest

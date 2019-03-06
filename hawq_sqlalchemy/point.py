@@ -38,33 +38,30 @@ class Point(UserDefinedType):
         If the value is already a string, this func does NOT check for correctness.
         Otherwise, raises a custom exception including the value it failed on.
         """
-        if (isinstance(value, dict)
-                and 'x' in value and 'y' in value
-                and value['x'] is not None and value['y'] is not None):
-            return "({},{})".format(value['x'], value['y'])
+        return str(value)
+        if (isinstance(value, tuple) and len(value)==2):
+            return "({},{})".format(value[0], value[1])
         if isinstance(value, str):
             return value
         raise SQLAlchemyHawqException('Failed to cast value ({}) to Point type'.format(value))
 
     def bind_processor(self, dialect):
         """
-        Returns a method to convert the value input in Python
-        to its SQL representation.
+        Returns a method to convert the tuple input to a its SQL string.
         """
         return Point.bind_func
 
     def bind_expression(self, bindvalue):
         """
-        Returns a Python Point object with its x and y values set
-        and its 'value' value converted to its SQL representation.
+        Returns a the input object with its 'value' attribute converted to its SQL representation.
         """
         bindvalue.value = Point.bind_func(bindvalue.value)
         return bindvalue
 
     def result_processor(self, dialect, coltype):
         """
-        Returns a Python representation of a SQL Point value.
-        Point((float x),(float y)) -> [float x, float y]
+        Transforms the SQL string into a Python tuple.
+        Point((float x),(float y)) -> (float x, float y)
         """
         def process(value):
             if value is None:
