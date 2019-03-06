@@ -410,6 +410,6 @@ WITH (compresslevel={})'''.format(compresslevel)
 
         ins = MockTable.__table__.insert().values(id=3, ptest=(3, 4))
         params = ins.compile().params
-        expected = {'id': 3, 'ptest': '(3, 4)'}
+        expected = {'id': 3, 'ptest': (3, 4)}
 
         assert expected == params
