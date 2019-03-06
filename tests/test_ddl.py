@@ -6,6 +6,7 @@ from sqlalchemy.dialects import postgresql
 
 
 from hawq_sqlalchemy.partition import format_partition_value
+from hawq_sqlalchemy.point import Point
 
 
 class TestFormatPartitionValue:
@@ -51,3 +52,11 @@ class TestFormatPartitionValue:
     def test_escape_string(self):
         result = format_partition_value(postgresql.CHAR(), '\'s\'')
         assert '$$\'s\'$$' == result
+
+
+class TestPointSQLConversion:
+    def test_tuple_to_string_correct(self):
+        func = Point.result_processor(1, 2, 3)
+        print(func('(99,100)'))
+        print(func())
+        assert False

@@ -31,8 +31,14 @@ class Point(UserDefinedType):
         Returns a method to convert the tuple input to a its SQL string.
         """
         def process(value):
+            if value is None:
+                return None
             try:
                 val1, val2 = value
+                if val1 is None or val2 is None:
+                    if val1 is not None or val2 is not None:
+                        raise SQLAlchemyHawqException('Both values must be non-null or no data will be saved for Point({})'.format(value))
+                    return None
                 return str(value)
             except:
                 raise SQLAlchemyHawqException('Unexpected input type for Point ({})'.format(value))

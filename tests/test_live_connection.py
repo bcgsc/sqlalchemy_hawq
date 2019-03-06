@@ -61,6 +61,9 @@ class TestWithLiveConnection:
         ins = MockTable2.__table__.insert(inline=True).values(id=10, ptest=(14, 201))
         print(ins.compile().params)
         conn.execute(ins)
+        ins3 = MockTable2.__table__.insert(inline=True).values(id=10, ptest=(None,None))
+        print(ins3.compile().params)
+        conn.execute(ins3)
 
         Session = sessionmaker(bind=test_engine)
         session = Session()
