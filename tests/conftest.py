@@ -87,5 +87,5 @@ def test_engine(request, username, password, echo_sql):
     engine.execute("GRANT ALL PRIVILEGES ON SCHEMA " + schemaname + " TO refactor_admin;")
 
     yield engine
-    #engine.execute("drop schema " + schemaname + " cascade;")
+    engine.execute("drop schema " + schemaname + " cascade;")
     engine.dispose()
