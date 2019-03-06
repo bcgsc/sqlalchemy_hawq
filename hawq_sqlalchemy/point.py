@@ -31,6 +31,7 @@ class Point(UserDefinedType):
         Returns a method to convert the tuple input to a its SQL string.
         """
         def process(value):
+            print("VALUE: ", value)
             if value is None:
                 return None
             try:
