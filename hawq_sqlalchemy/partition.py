@@ -61,6 +61,7 @@ class Partition:
         return subpartition_statements
 
     def clause(self, table):
+        """Base version of func that returns the assembled clause."""
         raise NotImplementedError('abstract method must be overridden')
 
 
@@ -115,7 +116,7 @@ class ListPartition(Partition):
         Returns:
             statement(str): the partition clause for this table.
 
-         """
+        """
         column = self.partition_column(table)
         partition_statements = self.get_partition_statements(column)
         subpartition_statements = self.get_subpartition_statements(table)
@@ -124,11 +125,9 @@ class ListPartition(Partition):
 (
 {}
     DEFAULT PARTITION other
-)""".format(
-            self.column_name,"""
-""".join(subpartition_statements),"""
-""".join(partition_statements)
-        )
+)""".format(self.column_name,
+            "\n".join(subpartition_statements),
+            "\n".join(partition_statements))
         return statement
 
 
@@ -157,11 +156,7 @@ class ListSubpartition(ListPartition):
     (
     {}
         DEFAULT SUBPARTITION other
-    )""".format(
-            self.column_name,
-            """
-    """.join(partition_statements)
-        )
+    )""".format(self.column_name, "\n    ".join(partition_statements))
         return statement
 
 
@@ -205,12 +200,11 @@ class RangePartition(Partition):
 (
     START ({}) END ({}) EVERY ({}),
     DEFAULT PARTITION extra
-)""".format(
-            self.column_name,
-            """
-""".join(subpartition_statements),
-            self.start, self.end, self.every
-        )
+)""".format(self.column_name,
+            "".join(subpartition_statements),
+            self.start,
+            self.end,
+            self.every)
         return statement
 
 
@@ -238,10 +232,7 @@ class RangeSubpartition(RangePartition):
     (
         START ({}) END ({}) EVERY ({}),
         DEFAULT SUBPARTITION extra
-    )""".format(
-            self.column_name,
-            self.start, self.end, self.every
-        )
+    )""".format(self.column_name, self.start, self.end, self.every)
         return statement
 
 
@@ -264,16 +255,16 @@ def format_partition_value(type_, value):
     '''
     if type_.python_type in [int, float, decimal.Decimal]:
         return str(type_.python_type(value))
-    elif type_.python_type == str:
+    if type_.python_type == str:
         if '\'' in value:
             return '$${}$$'.format(value)
-        else:
-            return '\'{}\''.format(value)
-    elif type_.python_type == bool:
+        return '\'{}\''.format(value)
+    if type_.python_type == bool:
         if str(value).lower() in ['t', 'true', '1']:
             return 'TRUE'
         elif str(value).lower() in ['f', 'false', '0']:
             return 'FALSE'
+        return 'FALSE'
     raise NotImplementedError('unsupported type ({}) for the given value ({}) in hawq has not been implemented'.format(
         type_.python_type, value
     ))

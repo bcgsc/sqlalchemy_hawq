@@ -39,6 +39,7 @@ setup(
     test_suite='tests',
     tests_require=TEST_REQS,
     entry_points={'sqlalchemy.dialects': [
-        'hawq = hawq_sqlalchemy.dialect:HawqDialect'
+        'hawq = hawq_sqlalchemy.dialect:HawqDialect',
+        'hawq+psycopg2 = hawq_sqlalchemy.dialect:HawqDialect'
     ]}
 )
