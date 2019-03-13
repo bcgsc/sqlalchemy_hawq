@@ -1,5 +1,5 @@
 '''
-Data definition language support for the Apache Hawq database
+Defines Hawq point type for use by Sqlalchemy
 '''
 import re
 
