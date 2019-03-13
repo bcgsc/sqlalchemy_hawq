@@ -25,7 +25,7 @@ DEPLOYMENT_REQS = [
 
 setup(
     name='hawq_sqlalchemy',
-    version='0.1.0',
+    version='0.2.0',
     packages=find_packages(),
     install_requires=INSTALL_REQS,
     extras_require={
