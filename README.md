@@ -8,6 +8,7 @@ database.
 
 ### Install (For developers)
 
+
 clone this repository
 
 ```bash
@@ -55,16 +56,21 @@ Hawq specific table arguments are also supported (Not all features are supported
 | Argument | Type | Example | Notes |
 |----------|------|---------|-------|
 | hawq_distributed_by | str | `'column_name'` | |
-| hawq_partition_by | RangePartition or ListPartition | 
-                    `'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [
-                        RangeSubpartition('year', 2002, 2012, 1),
-                        RangeSubpartition('month', 1, 13, 1),
-                    ])`
-                     | Does not currently support range partitioning on dates |
+| hawq_partition_by | RangePartition or ListPartition | `ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [RangeSubpartition('year', 2002, 2012, 1), RangeSubpartition('month', 1, 13, 1),])` | Does not currently support range partitioning on dates |
 | hawq_apppendonly | bool | `True` | |
 | hawq_orientation | str | `'ROW'` | expects one of `{'ROW', 'PARQUET'}` |
 | hawq_compresstype | str | `'ZLIB'` | expects one of `{'ZLIB', 'SNAPPY', 'GZIP', 'NONE'}` |
 | hawq_compresslevel | int | `0` | expects an integer between 0-9 |
+
+
+
+Partition arguments are 
+RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{name_of_partition=str:value_to_partition_on=str}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition. 
+
+Subpartitions expect the same params as Partitions but without a nested subpartition array. 
+
+Partition level is determined by the order of the subpartitions in the subpartition array. 
+
 
 ---
 

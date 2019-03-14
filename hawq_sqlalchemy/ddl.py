@@ -1,13 +1,11 @@
 '''
 Data definition language support for the Apache Hawq database
 '''
-
-
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
-from sqlalchemy.sql import expression
-from .partition import partition_clause
 
+
+from .partition import partition_clause
 
 
 def with_clause(table_opts):
@@ -53,7 +51,6 @@ def with_clause(table_opts):
         return ''
     with_statement = ', '.join(['{}={}'.format(k, v) for k, v in with_statement.items()])
     return '\nWITH ({})'.format(with_statement)
-
 
 
 class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
@@ -111,16 +108,12 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
         HAWQ only supports check constraints. Ignore any other constraints
         '''
         constraints = [c for c in table._sorted_constraints if isinstance(c, schema.CheckConstraint)]
-        return ', \n\t'.join(
-            p for p in
-            (self.process(constraint)
-                for constraint in constraints
-                if (
-                    constraint._create_rule is None or
-                    constraint._create_rule(self))
-                and (
-                    not self.dialect.supports_alter or
-                    not getattr(constraint, 'use_alter', False)
-            )) if p is not None
-        )
-
+        retval = ''
+        for constraint in constraints:
+            if ((constraint._create_rule is None or constraint._create_rule(self))
+                    and not (self.dialect.supports_alter
+                             and getattr(constraint, 'use_alter', False))):
+                for item in self.process(constraint):
+                    if item is not None:
+                        retval = retval + ', \n    ' + item
+        return retval

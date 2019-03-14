@@ -1,3 +1,7 @@
+"""
+Extends postgres dialect to support Apache HAWQ db ddl and dml.
+"""
+
 from sqlalchemy.dialects import registry
 
 
