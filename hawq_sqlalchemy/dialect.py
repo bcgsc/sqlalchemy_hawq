@@ -1,9 +1,5 @@
-import re
-
-
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
-from sqlalchemy.sql import expression
 
 
 from .ddl import HawqDDLCompiler
@@ -28,4 +24,3 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
         })
     ]
     ddl_compiler = HawqDDLCompiler
-

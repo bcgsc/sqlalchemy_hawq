@@ -1,11 +1,11 @@
-from unittest import mock
-
-
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
-from sqlalchemy.schema import CreateTable, Index
+
+
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
+from hawq_sqlalchemy.point import Point
+
 
 @pytest.fixture
 def engine_spy():
@@ -17,7 +17,7 @@ def engine_spy():
         def __call__(self, sql, *args, **kwargs):
             self.sql = str(sql.compile(dialect=self.engine.dialect))
     spy = MetadataDumpSpy()
-    engine = create_engine('hawq://localhost/creisle', strategy='mock', executor=spy)
+    engine = create_engine('hawq://localhost/dummy_user', strategy='mock', executor=spy)
     spy.engine = engine
     return spy
 
@@ -181,10 +181,10 @@ PARTITION BY RANGE (chrom)
                     ])
                 }
             )
-            id = Column('id',Integer(), primary_key = True, autoincrement = False)
-            year = Column('year',Integer())
-            month = Column('month',Integer())
-            chrom = Column('chrom',Text())
+            id = Column('id', Integer(), primary_key=True, autoincrement=False)
+            year = Column('year', Integer())
+            month = Column('month', Integer())
+            chrom = Column('chrom', Text())
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
@@ -200,7 +200,6 @@ PARTITION BY RANGE (year)
         START (1) END (13) EVERY (1),
         DEFAULT SUBPARTITION extra
     )
-
     SUBPARTITION BY LIST (chrom)
     SUBPARTITION TEMPLATE
     (
@@ -228,10 +227,10 @@ PARTITION BY RANGE (year)
                     ])
                 }
             )
-            id = Column('id',Integer(), primary_key = True, autoincrement = False)
-            year = Column('year',Integer())
-            month = Column('month',Integer())
-            chrom = Column('chrom',Text())
+            id = Column('id', Integer(), primary_key=True, autoincrement=False)
+            year = Column('year', Integer())
+            month = Column('month', Integer())
+            chrom = Column('chrom', Text())
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
 
@@ -423,3 +422,34 @@ WITH (compresslevel={})'''.format(compresslevel)
 
         with pytest.raises(ValueError):
             metadata.create_all(engine_spy.engine)
+
+
+    def test_point_type(self, base, engine_spy):
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            ptest = Column('ptest', Point, primary_key=True)
+
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+        expected = '''CREATE TABLE "MockTable" (
+\tptest POINT NOT NULL
+)'''
+        assert expected == engine_spy.sql.strip()
+
+    def test_compile_point_type_from_list_input(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+
+            id = Column('id', Integer, primary_key=True)
+            ptest = Column('ptest', Point)
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+
+        ins = MockTable.__table__.insert().values(id=3, ptest=(3, 4))
+        params = ins.compile().params
+        expected = {'id': 3, 'ptest': (3, 4)}
+
+        assert expected == params
