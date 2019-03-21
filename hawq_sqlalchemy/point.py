@@ -11,7 +11,6 @@ class SQLAlchemyHawqException(Exception):
     """
     Custom exception name for Hawq-Sqlalchemy package
     """
-    pass
 
 
 class Point(UserDefinedType):
@@ -19,7 +18,7 @@ class Point(UserDefinedType):
     Wrapper for a 2-element tuple.
     The Point type is available in HAWQ db and postgres DBAPI, but not in SQLAlchemy.
     """
-    def get_col_spec(value):
+    def get_col_spec(value):  # pylint: disable=no-self-argument
         """
         Returns type name.
         get_col_spec must be overridden when implementing a custom class.

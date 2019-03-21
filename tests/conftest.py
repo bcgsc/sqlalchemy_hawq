@@ -4,7 +4,7 @@ Defines pytest command line arguments and fixtures that can be used throughout t
 import pytest
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy import create_engine
-from sqlalchemy.orm import configure_mappers
+from sqlalchemy.orm import configure_mappers, sessionmaker
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy.engine.url import URL
 
@@ -54,7 +54,12 @@ def echo_sql(request):
 
 
 @pytest.fixture(scope='session')
-def test_engine(request, username, password, echo_sql):
+def schemaname(request):
+    return 'testschema'
+
+
+@pytest.fixture(scope='session')
+def test_engine(request, username, password, echo_sql, schemaname):
     """
     Returns engine connected to hawq database with schema testschema initialized
     """
@@ -73,8 +78,6 @@ def test_engine(request, username, password, echo_sql):
 
     configure_mappers()
 
-    schemaname = 'testschema'
-
     try:
         engine.execute("drop schema " + schemaname + " cascade;")
         print("Schema " + schemaname + " existed and was dropped before creating")
@@ -89,3 +92,10 @@ def test_engine(request, username, password, echo_sql):
     yield engine
     engine.execute("drop schema " + schemaname + " cascade;")
     engine.dispose()
+
+
+@pytest.fixture(scope='session')
+def SessionFactory(test_engine):
+    Session = sessionmaker(bind=test_engine)
+    yield Session
+    Session.close_all()

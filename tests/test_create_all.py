@@ -107,8 +107,7 @@ DISTRIBUTED BY (chrom)'''
             __table_args__ = (
                 UniqueConstraint('chrom'),
                 {
-                    'hawq_bucketnum': 42,
-
+                    'hawq_bucketnum': 42
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
