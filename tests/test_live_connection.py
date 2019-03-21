@@ -52,13 +52,13 @@ class TestWithLiveConnection:
     """
     A group of tests requiring a live connection.
     """
-    def test_live_setup(self, SessionFactory, MockTable):
+    def test_live_setup(self, SessionFactory, MockTable, test_engine):
         """
         Checks that the live connection works, ie
         that a table can be made and data entered and queried.
         """
         session = SessionFactory()
-        session.add(MockTable(id=99, test=5))
+        session.add(MockTable(test=5))
         session.commit()
         session.close()
 
@@ -69,6 +69,18 @@ class TestWithLiveConnection:
         session2.close()
 
         assert expected == 5
+
+
+    def test_no_implicit_returning_clause(self, SessionFactory, MockTable, test_engine):
+        """
+        Checks that the dialect is passing 'implicit_returning'=False
+        to the engine. 
+        Would fail if a 'returning' clause were passed as Hawq does not handle them.
+        """
+        session = SessionFactory()
+        session.add(MockTable(test=5))
+        session.commit()
+        session.close()
 
 
     def test_point_type_insert_select(self, SessionFactory, PointTable):
