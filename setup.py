@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 # Dependencies required to use your package
 INSTALL_REQS = [
-    'sqlalchemy>=1.2.12'
+    'sqlalchemy>=1.2.12[postgresql]'
 ]
 
 # Dependencies required only for building the documentation
