@@ -25,10 +25,16 @@ DEPLOYMENT_REQS = [
 ]
 
 
+PACKAGES = [
+    'test',
+    'tests',
+    'hawq_sqlalchemy'
+]
+
 setup(
     name='hawq_sqlalchemy',
     version='0.2.0',
-    packages=find_packages(),
+    packages=PACKAGES,
     install_requires=INSTALL_REQS,
     extras_require={
         'docs': DOCUMENTATION_REQS,
