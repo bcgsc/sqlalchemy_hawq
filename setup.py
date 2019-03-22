@@ -14,7 +14,9 @@ DOCUMENTATION_REQS = [
 # Dependencies required only for running tests
 TEST_REQS = [
     'pytest',
-    'pytest-cov'
+    'pytest-cov',
+    "mock",
+"pytest-xdist"
 ]
 
 # Dependencies required for deploying to an index server
@@ -36,7 +38,7 @@ setup(
     python_requires='>=3',
     author_email='creisle@bcgsc.ca',
     dependency_links=[],
-    test_suite='tests',
+    test_suite='test',
     tests_require=TEST_REQS,
     entry_points={'sqlalchemy.dialects': [
         'hawq = hawq_sqlalchemy.dialect:HawqDialect',

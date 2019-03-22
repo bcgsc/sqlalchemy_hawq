@@ -9,6 +9,7 @@ from sqlalchemy.schema import CreateSchema
 from sqlalchemy.engine.url import URL
 
 
+
 def pytest_addoption(parser):
     """
     Defines possible command line arguments
@@ -88,7 +89,7 @@ def test_engine(request, username, password, echo_sql, schemaname):
             return
     engine.execute(CreateSchema(schemaname))
     engine.execute("GRANT ALL PRIVILEGES ON SCHEMA " + schemaname + " TO refactor_admin;")
-
+    import pdb; pdb.set_trace()
     yield engine
     engine.execute("drop schema " + schemaname + " cascade;")
     engine.dispose()
