@@ -27,5 +27,5 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
     name = 'hawq'
 
     def initialize(self, connection):
-        super(postgresql.psycopg2.PGDialect_psycopg2, self).initialize(connection)
+        super().initialize(connection)
         self.implicit_returning = False 
