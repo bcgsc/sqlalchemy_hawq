@@ -47,6 +47,11 @@ def with_clause(table_opts):
             ))
         with_statement['compresslevel'] = table_opts['compresslevel']
 
+    if table_opts['bucketnum'] is not None:
+        if table_opts['distributed_by'] is None:
+            raise ValueError("""bucketnum is only valid when used with 'distributed_by'""")
+        with_statement['bucketnum'] = table_opts['bucketnum']
+
     if not with_statement:
         return ''
     with_statement = ', '.join(['{}={}'.format(k, v) for k, v in with_statement.items()])

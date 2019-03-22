@@ -262,7 +262,7 @@ def format_partition_value(type_, value):
     if type_.python_type == bool:
         if str(value).lower() in ['t', 'true', '1']:
             return 'TRUE'
-        elif str(value).lower() in ['f', 'false', '0']:
+        if str(value).lower() in ['f', 'false', '0']:
             return 'FALSE'
         return 'FALSE'
     raise NotImplementedError('unsupported type ({}) for the given value ({}) in hawq has not been implemented'.format(

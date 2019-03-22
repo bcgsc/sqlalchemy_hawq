@@ -14,6 +14,7 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
             'partition_by': None,
             'inherits': None,
             'distributed_by': None,
+            'bucketnum': None,
             'appendonly': None,
             'orientation': None,
             'compresstype': None,

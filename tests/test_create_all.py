@@ -78,6 +78,45 @@ PARTITION BY LIST (chrom)
 DISTRIBUTED BY (chrom)'''
         assert expected == engine_spy.sql.strip()
 
+    def test_distributed_with_hash(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            __table_args__ = (
+                UniqueConstraint('chrom'),
+                {
+                    'hawq_distributed_by': 'chrom',
+                    'hawq_bucketnum': 42
+                }
+            )
+            chrom = Column('chrom', Text(), primary_key=True)
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+        expected = '''CREATE TABLE "MockTable" (
+\tchrom TEXT NOT NULL
+)
+WITH (bucketnum=42)
+DISTRIBUTED BY (chrom)'''
+        assert expected == engine_spy.sql.strip()
+
+    def test_hash_without_distribution(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+            __table_args__ = (
+                UniqueConstraint('chrom'),
+                {
+                    'hawq_bucketnum': 42
+                }
+            )
+            chrom = Column('chrom', Text(), primary_key=True)
+
+        metadata = MockTable.__table__.metadata
+        with pytest.raises(ValueError):
+            metadata.create_all(engine_spy.engine)
+
+
     def test_partition_by_list(self, base, engine_spy):
 
         class MockTable(base):
