@@ -17,7 +17,6 @@ class Requirements(SuiteRequirements):
     def index_reflection(self):
         return exclusions.closed()
 
-
     @property
     def cross_schema_fk_reflection(self):
         return exclusions.closed()
@@ -30,11 +29,9 @@ class Requirements(SuiteRequirements):
     def independent_connections(self):
         return exclusions.closed()
 
-
     @property
     def ctes_with_update_delete(self):
         return exclusions.closed()
-
 
     @property
     def schema_reflection(self):
@@ -48,7 +45,6 @@ class Requirements(SuiteRequirements):
     def foreign_key_constraint_reflection(self):
         return exclusions.closed()
 
-
     @property
     def implicitly_named_constraints(self):
         return exclusions.closed()
@@ -60,8 +56,6 @@ class Requirements(SuiteRequirements):
     @property
     def parens_in_union_contained_select_wo_limit_offset(self):
         return exclusions.closed()
-
-    
 
     @property
     def reflects_pk_names(self):

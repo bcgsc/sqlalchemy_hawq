@@ -92,6 +92,13 @@ class TableDDLTest(_TableDDLTest):
 from sqlalchemy.testing.suite import ServerSideCursorsTest as _ServerSideCursorsTest
 
 class ServerSideCursorsTest(_ServerSideCursorsTest):
+
+    # make sure overriding teardown to not dispose of absent engine doesn't break anything
+    def tearDown(self):
+        engines.testing_reaper.close_all()
+        if 'engine' in dir(self):
+            self.engine.dispose()
+
     @testing.requires.update_append_only_statement
     def test_roundtrip(self):
         super.test_roundtrip()
@@ -106,6 +113,7 @@ class ServerSideCursorsTest(_ServerSideCursorsTest):
     def test_for_update_expr(self):
         super.test_for_update_expr()
         return
+
 
 from sqlalchemy.testing.suite import OrderByLabelTest as _OrderByLabelTest
 
