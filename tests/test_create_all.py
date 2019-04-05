@@ -465,6 +465,7 @@ WITH (compresslevel={})'''.format(compresslevel)
         metadata.create_all(engine_spy.engine)
 
         delete_stmt = MockTable.__table__.delete().where(id==3)
+
         with pytest.raises(NotImplementedError):
             delete_stmt.compile(engine_spy.engine)
 
@@ -481,4 +482,5 @@ WITH (compresslevel={})'''.format(compresslevel)
 
         delete_stmt = MockTable.__table__.delete()
         expected = str(delete_stmt.compile(engine_spy.engine))
+
         assert expected == 'TRUNCATE TABLE \"MockTable\"'
