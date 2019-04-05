@@ -1,8 +1,10 @@
+""" Tests Hawq compiler output without connecting to live db. """
+
 import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 
-from hawq_sqlalchemy.dialect import HawqDialect
+
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
 from hawq_sqlalchemy.point import Point
 
@@ -464,7 +466,7 @@ WITH (compresslevel={})'''.format(compresslevel)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
 
-        delete_stmt = MockTable.__table__.delete().where(id==3)
+        delete_stmt = MockTable.__table__.delete().where(id == 3)
 
         with pytest.raises(NotImplementedError):
             delete_stmt.compile(engine_spy.engine)

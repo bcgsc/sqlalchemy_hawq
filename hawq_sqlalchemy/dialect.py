@@ -1,3 +1,5 @@
+""" Customizes the postgresql.psycopg2 dialect to work with Hawq. """
+
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
 from sqlalchemy.ext.compiler import compiles
@@ -29,8 +31,11 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
     name = 'hawq'
 
     def initialize(self, connection):
+        """
+        Override implicit_returning = True of postgresql dialect
+        """
         super().initialize(connection)
-        self.implicit_returning = False 
+        self.implicit_returning = False
 
     @compiles(Delete, 'hawq')
     def visit_delete_statement(element, compiler, **kwargs):
@@ -44,5 +49,4 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
         filters_tuple = element.get_children()
         if not filters_tuple:
             return 'TRUNCATE TABLE {}'.format(delete_stmt_table)
-        else:
-            raise NotImplementedError('Delete statement with filter clauses not implemented for Hawq')
+        raise NotImplementedError('Delete statement with filter clauses not implemented for Hawq')

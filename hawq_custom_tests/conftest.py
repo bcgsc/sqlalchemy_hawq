@@ -56,6 +56,9 @@ def echo_sql(request):
 
 @pytest.fixture(scope='session')
 def schemaname(request):
+    """
+    Provides the intended name of the test schema
+    """
     return 'testschema'
 
 
@@ -89,7 +92,7 @@ def test_engine(request, username, password, echo_sql, schemaname):
             return
     engine.execute(CreateSchema(schemaname))
     engine.execute("GRANT ALL PRIVILEGES ON SCHEMA " + schemaname + " TO refactor_admin;")
-    import pdb; pdb.set_trace()
+
     yield engine
     engine.execute("drop schema " + schemaname + " cascade;")
     engine.dispose()

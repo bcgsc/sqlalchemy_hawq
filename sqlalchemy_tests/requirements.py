@@ -45,31 +45,26 @@ class Requirements(SuiteRequirements):
     ### ------- HAWQ-SPECIFIC PROPERTIES -------- ###
 
     @property
-    def truncate_table(self):
-        """
-        Hawq does not support delete statements, but the delete statement is be compiled
-        to a truncate statement if no filters are added, which is enough for teardown.
-        """
-        return exclusions.open()
-
-    @property
     def delete_row_statement_for_append_only_table(self):
         """
-        ProgrammingError('(psycopg2.ProgrammingError) Delete append-only table statement not supported yet\n')
+        ProgrammingError('(psycopg2.ProgrammingError)
+        Delete append-only table statement not supported yet\n')
         """
         return exclusions.closed()
 
 
     @property
     def select_for_update_share(self):
-        """sqlalchemy.exc.NotSupportedError: (psycopg2.NotSupportedError) Cannot support select for update/share statement yet"""
+        """sqlalchemy.exc.NotSupportedError: (psycopg2.NotSupportedError)
+        Cannot support select for update/share statement yet"""
 
         return exclusions.closed()
 
     @property
     def update_append_only_statement(self):
         """
-        ProgrammingError('(psycopg2.ProgrammingError) Delete append-only table statement not supported yet\n')
+        ProgrammingError('(psycopg2.ProgrammingError)
+        Delete append-only table statement not supported yet\n')
         """
         return exclusions.closed()
 

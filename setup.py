@@ -26,8 +26,8 @@ DEPLOYMENT_REQS = [
 
 
 PACKAGES = [
-    'test',
-    'tests',
+    'sqlalchemy_tests',
+    'hawq_custom_tests',
     'hawq_sqlalchemy'
 ]
 
@@ -44,7 +44,7 @@ setup(
     python_requires='>=3',
     author_email='creisle@bcgsc.ca',
     dependency_links=[],
-    test_suite='test',
+    test_suite='sqlalchemy_tests',
     tests_require=TEST_REQS,
     entry_points={'sqlalchemy.dialects': [
         'hawq = hawq_sqlalchemy.dialect:HawqDialect',

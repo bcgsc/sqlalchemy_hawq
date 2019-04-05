@@ -13,52 +13,52 @@ from hawq_sqlalchemy.point import SQLAlchemyHawqException
 class TestFormatPartitionValue:
     def test_integer(self):
         result = format_partition_value(postgresql.INTEGER(), 1)
-        assert '1' == result
+        assert result == '1'
 
     def test_numeric(self):
         result = format_partition_value(postgresql.NUMERIC(), 1)
-        assert '1' == result
+        assert result == '1'
 
     def test_boolean(self):
         result = format_partition_value(postgresql.BOOLEAN(), 'f')
-        assert 'FALSE' == result
+        assert result == 'FALSE'
 
         result = format_partition_value(postgresql.BOOLEAN(), 'true')
-        assert 'TRUE' == result
+        assert result == 'TRUE'
 
     def test_real(self):
         result = format_partition_value(postgresql.REAL(), '1.1')
-        assert '1.1' == result
+        assert result == '1.1'
 
     def test_float(self):
         result = format_partition_value(postgresql.FLOAT(), '1.1')
-        assert '1.1' == result
+        assert result == '1.1'
 
     def test_enum(self):
         result = format_partition_value(postgresql.ENUM(), '1.1')
-        assert '\'1.1\'' == result
+        assert result == '\'1.1\''
 
     def test_varchar(self):
         result = format_partition_value(postgresql.VARCHAR(), 'something')
-        assert '\'something\'' == result
+        assert result == '\'something\''
 
     def test_text(self):
         result = format_partition_value(postgresql.TEXT(), 'something')
-        assert '\'something\'' == result
+        assert result == '\'something\''
 
     def test_char(self):
         result = format_partition_value(postgresql.CHAR(), 's')
-        assert '\'s\'' == result
+        assert result == '\'s\''
 
     def test_escape_string(self):
         result = format_partition_value(postgresql.CHAR(), '\'s\'')
-        assert '$$\'s\'$$' == result
+        assert result == '$$\'s\'$$'
 
 
 class TestPointSQLConversion:
     def test_string_to_tuple_correct(self):
         func = Point.result_processor(1, 2, 3)
-        assert func('(99,100)') == (99,100)
+        assert func('(99,100)') == (99, 100)
 
     def test_string_to_tuple_incorrect(self):
         func = Point.result_processor(1, 2, 3)
@@ -86,7 +86,7 @@ class TestPointSQLConversion:
 
     def test_none_to_none_bind(self):
         func = Point.bind_processor(1, 2)
-        assert func((None,None)) == None
+        assert func((None, None)) == None
 
     def test_none_to_none_bind_2(self):
         func = Point.bind_processor(1, 2)
@@ -94,14 +94,14 @@ class TestPointSQLConversion:
 
     def test_tuple_to_string(self):
         func = Point.bind_processor(1, 2)
-        assert func((1,2)) == '(1, 2)'
+        assert func((1, 2)) == '(1, 2)'
 
     def test_tuple_to_string_incorrect(self):
-        func = Point.bind_processor(1,2)
+        func = Point.bind_processor(1, 2)
         with pytest.raises(SQLAlchemyHawqException):
-            assert func((None,2)) == '(1, 2)'
+            assert func((None, 2)) == '(1, 2)'
 
     def test_tuple_to_string_incorrect_2(self):
-        func = Point.bind_processor(1,2)
+        func = Point.bind_processor(1, 2)
         with pytest.raises(SQLAlchemyHawqException):
-            assert func((2,None)) == '(1, 2)'
+            assert func((2, None)) == '(1, 2)'
