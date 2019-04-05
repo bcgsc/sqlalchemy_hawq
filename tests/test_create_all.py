@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 
-
+from hawq_sqlalchemy.dialect import HawqDialect
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
 from hawq_sqlalchemy.point import Point
 
@@ -452,3 +452,33 @@ WITH (compresslevel={})'''.format(compresslevel)
         expected = {'id': 3, 'ptest': (3, 4)}
 
         assert expected == params
+
+    def test_delete_statement_with_filter_clauses(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+
+            id = Column('id', Integer, primary_key=True)
+            ptest = Column('ptest', Point)
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+
+        delete_stmt = MockTable.__table__.delete().where(id==3)
+        with pytest.raises(NotImplementedError):
+            delete_stmt.compile(engine_spy.engine)
+
+    def test_delete_statement_bare(self, base, engine_spy):
+
+        class MockTable(base):
+            __tablename__ = 'MockTable'
+
+            id = Column('id', Integer, primary_key=True)
+            ptest = Column('ptest', Point)
+
+        metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
+
+        delete_stmt = MockTable.__table__.delete()
+        expected = str(delete_stmt.compile(engine_spy.engine))
+        assert expected == 'TRUNCATE TABLE \"MockTable\"'

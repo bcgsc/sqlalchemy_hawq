@@ -1,8 +1,10 @@
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
 from sqlalchemy.ext.compiler import compiles
-from .ddl import HawqDDLCompiler
 from sqlalchemy.sql.expression import (Delete)
+
+
+from .ddl import HawqDDLCompiler
 
 
 class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):

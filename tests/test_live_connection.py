@@ -70,6 +70,39 @@ class TestWithLiveConnection:
 
         assert expected == 5
 
+    def test_live_delete_with_filter(self, SessionFactory, MockTable, test_engine):
+        """
+        Checks that the live connection works, ie
+        that a table can be made and data entered and queried.
+        """
+        session = SessionFactory()
+
+        item = MockTable(test=6)
+        session.add(MockTable(test=6))
+
+        with pytest.raises(StatementError):
+            try:
+                session.delete(item)
+                session.commit()
+            except Exception as e:
+                session.close()
+                raise e
+
+
+    def test_live_truncate_as_delete(self, SessionFactory, MockTable, test_engine):
+        """
+        Checks that the live connection works, ie
+        that a table can be made and data entered and queried.
+        """
+        session = SessionFactory()
+        item = MockTable(test=5)
+        session.add(item)
+        session.commit()
+        session.close()
+
+
+        assert False
+
 
     def test_no_implicit_returning_clause(self, SessionFactory, MockTable, test_engine):
         """
