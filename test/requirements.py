@@ -73,4 +73,4 @@ class Requirements(SuiteRequirements):
         """
         Depends on user to create test_schema in the target db.
         """
-        return exclusions.open()
+        return exclusions.closed()
