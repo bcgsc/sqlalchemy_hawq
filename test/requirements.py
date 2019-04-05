@@ -65,12 +65,23 @@ class Requirements(SuiteRequirements):
     ### ------- HAWQ-SPECIFIC PROPERTIES -------- ###
 
     @property
-    def delete_append_only_statement(self):
-        return exclusions.closed()
+    def truncate_table(self):
+        """
+        ProgrammingError('(psycopg2.ProgrammingError) Delete append-only table statement not supported yet\n')
+        """
+        #TODO: since this almost only affects teardown, can teardown be overridden so more
+        #of these tests can be run?
+        return exclusions.open()
 
     @property
-    def delete_append_only_statement_in_teardown(self):
+    def delete_row_statement_for_append_only_table(self):
+        """
+        ProgrammingError('(psycopg2.ProgrammingError) Delete append-only table statement not supported yet\n')
+        """
+        #TODO: since this almost only affects teardown, can teardown be overridden so more
+        #of these tests can be run?
         return exclusions.closed()
+
 
     @property
     def select_for_update_share(self):
@@ -78,6 +89,9 @@ class Requirements(SuiteRequirements):
 
     @property
     def update_append_only_statement(self):
+        """
+        ProgrammingError('(psycopg2.ProgrammingError) Delete append-only table statement not supported yet\n')
+        """
         return exclusions.closed()
 
     @property
