@@ -27,7 +27,7 @@ DEPLOYMENT_REQS = [
 
 PACKAGES = [
     'test',
-    'hawq_custom_tests',
+    'tests',
     'hawq_sqlalchemy'
 ]
 

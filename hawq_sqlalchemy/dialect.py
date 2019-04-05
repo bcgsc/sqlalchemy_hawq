@@ -38,7 +38,7 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
         self.implicit_returning = False
 
     @compiles(Delete, 'hawq')
-    def visit_delete_statement(element, compiler, **kwargs):
+    def visit_delete_statement(element, compiler, **kwargs):  # pylint: disable=no-self-argument
         """
         Allows a version of the delete statement to get compiled - the version
         that is effectively the same as truncate.
