@@ -56,6 +56,8 @@ class TestWithLiveConnection:
         """
         Checks that the live connection works, ie
         that a table can be made and data entered and queried.
+
+        Also note that an appended 'RETURNING' clause will cause this test to fail.
         """
         session = SessionFactory()
         session.add(MockTable(test=5))
@@ -74,13 +76,12 @@ class TestWithLiveConnection:
     def test_no_implicit_returning_clause(self, SessionFactory, MockTable, test_engine):
         """
         Checks that the dialect is passing 'implicit_returning'=False
-        to the engine. 
-        Would fail if a 'returning' clause were passed as Hawq does not handle them.
+        to the engine, and no 'returning' clause is added to the sql.
         """
-        session = SessionFactory()
-        session.add(MockTable(test=5))
-        session.commit()
-        session.close()
+
+        ins = MockTable.__table__.insert().values(test=5).compile(dialect=test_engine.dialect)
+        expected = str(ins)
+        assert expected == 'INSERT INTO testschema.mocktable (id, test) VALUES (%(id)s, %(test)s)'
 
 
     def test_point_type_insert_select(self, SessionFactory, PointTable):

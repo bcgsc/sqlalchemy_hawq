@@ -25,7 +25,6 @@ class HawqDialect(postgresql.psycopg2.PGDialect_psycopg2):
     ]
     ddl_compiler = HawqDDLCompiler
 
-
     def initialize(self, connection):
         super(postgresql.psycopg2.PGDialect_psycopg2, self).initialize(connection)
-        self.implicit_returning = False 
+        self.implicit_returning = False
