@@ -16,7 +16,7 @@ TEST_REQS = [
     'pytest',
     'pytest-cov',
     "mock",
-"pytest-xdist"
+    "pytest-xdist"
 ]
 
 # Dependencies required for deploying to an index server
@@ -27,7 +27,6 @@ DEPLOYMENT_REQS = [
 
 PACKAGES = [
     'test',
-    'tests',
     'hawq_sqlalchemy'
 ]
 
