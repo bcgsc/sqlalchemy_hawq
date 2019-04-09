@@ -44,6 +44,16 @@ def pytest_pycollect_makeitem(collector, name, obj):
 
     if inspect.isclass(obj) and plugin_base.want_class(obj):
 
+        # does not run tests requiring db connection
+        # if sqlite connection is passed. using
+        # sqlite as a dummy so tests will run, tests
+        # should never use it.
+        if str(config.db_url) == 'sqlite:///:memory:':
+            if collector.name == 'test_suite.py':
+                return []
+            if collector.name == 'test_live_connection.py':
+                return []
+
         # only run custom tests, not sqla_tests
         if config.options.custom_only:
             if collector.name == 'test_suite.py':
