@@ -10,20 +10,6 @@ from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpar
 from hawq_sqlalchemy.point import Point
 
 
-@pytest.fixture
-def engine_spy():
-    class MetadataDumpSpy:
-        def __init__(self):
-            self.sql = None
-            self.engine = None
-
-        def __call__(self, sql, *args, **kwargs):
-            self.sql = str(sql.compile(dialect=self.engine.dialect))
-    spy = MetadataDumpSpy()
-    engine = create_engine('hawq://localhost/dummy_user', strategy='mock', executor=spy)
-    spy.engine = engine
-    return spy
-
 def get_engine_spy():
     class MetadataDumpSpy:
         def __init__(self):
@@ -38,14 +24,9 @@ def get_engine_spy():
     return spy
 
 
-@pytest.fixture
-def base():
-    return declarative_base()
-
-
 class TestCreateAll(fixtures.TestBase):
-    def test_multiple(self, base=declarative_base(), engine_spy=get_engine_spy()):
 
+    def test_multiple(self, base=declarative_base(), engine_spy=get_engine_spy()):
 
         class MockTable(base):
             __tablename__ = 'MockTable'

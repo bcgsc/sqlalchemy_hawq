@@ -5,10 +5,13 @@ Imports and modifies some test subsuites.
 Disables tests of sqlalchemy functionality that Hawq dialect does not support.
 """
 
+
 from sqlalchemy.testing.suite import *
 from sqlalchemy.testing.suite import SimpleUpdateDeleteTest as _SimpleUpdateDeleteTest
 from sqlalchemy.testing.suite import TableDDLTest as _TableDDLTest
 from sqlalchemy.testing.suite import ServerSideCursorsTest as _ServerSideCursorsTest
+
+
 
 
 class ComponentReflectionTest():

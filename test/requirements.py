@@ -5,6 +5,7 @@ from sqlalchemy.engine.url import URL
 
 
 class Requirements(SuiteRequirements):
+
     @property
     def returning(self):
         """

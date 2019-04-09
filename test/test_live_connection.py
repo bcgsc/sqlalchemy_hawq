@@ -13,8 +13,7 @@ from hawq_sqlalchemy.point import Point
 
 
 class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
-    #TODO: this seems like it means 'connects to db', do these tests not do that?
-    #__backend__ = True 
+    __backend__ = True
 
     @classmethod
     def setup_classes(cls):
@@ -37,6 +36,10 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
         """
         Checks that the live connection works, ie
         that a table can be made and data entered and queried.
+
+        This is also a test of disable-implicit-returning clause:
+        if the 'returning' clause is attached, an exception will be
+        thrown; if no sql is sent, the test will fail.
         """
         mocktable = self.classes.MockTable
         session = Session()
