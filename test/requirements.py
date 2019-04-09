@@ -7,6 +7,10 @@ from sqlalchemy.engine.url import URL
 class Requirements(SuiteRequirements):
 
     @property
+    def test_exclusion(self):
+        return exclusions.open()
+
+    @property
     def returning(self):
         """
         Hawq does not support a 'RETURNING' clause
