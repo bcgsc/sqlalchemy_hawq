@@ -15,8 +15,8 @@ DOCUMENTATION_REQS = [
 TEST_REQS = [
     'pytest',
     'pytest-cov',
-    "mock",
-    "pytest-xdist"
+    'mock',
+    'pytest-xdist'
 ]
 
 # Dependencies required for deploying to an index server

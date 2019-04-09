@@ -18,8 +18,6 @@ registry.register('hawq+psycopq2', 'hawq_sqlalchemy.dialect', 'HawqDialect')
 
 
 def pytest_addoption(parser):
-    # add option to not initialize db connection - for ci
-
     """
     Adds custom args, then calls the sqlalchemy pytest_addoption method to handle the rest
     """
@@ -35,11 +33,6 @@ def pytest_addoption(parser):
                      action="store_true",
                      default=False,
                      help="run only the sqlalchemy test suite")
-    parser.addoption("--ci",
-                     action="store_true",
-                     default=False,
-                     help="run only the sqlalchemy test suite")
-
     pytestplugin.pytest_addoption(parser)
 
 
@@ -50,11 +43,6 @@ def pytest_pycollect_makeitem(collector, name, obj):
     """
 
     if inspect.isclass(obj) and plugin_base.want_class(obj):
-
-        # only run tests that do not require a live db connection
-        if config.options.ci:
-            if '__backend__' in dir(obj) and obj.__backend__ == True:
-                return []
 
         # only run custom tests, not sqla_tests
         if config.options.custom_only:
