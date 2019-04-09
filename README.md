@@ -12,7 +12,7 @@ database.
 clone this repository
 
 ```bash
-git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/hawq_sqlalchemy.git
+git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/dat/hawq_sqlalchemy.git
 cd hawq_sqlalchemy
 ```
 
