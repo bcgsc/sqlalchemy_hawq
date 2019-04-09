@@ -31,9 +31,28 @@ pip install -e .[dev]
 
 ### Run Tests
 
+The whole test package can be run using:
+
 ```bash
-pytest tests
+pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor
 ```
+where your user name and hawq pass are the credentials for connecting to the test_refactor db.
+
+To run only the custom (local) tests, use the option --custom-only:
+```bash
+pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --custom-only
+```
+
+To run only the SQLAlchemy test suite, use the option --sqla-only:
+```bash
+pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --sqla-only
+```
+
+To run only the unit (local) tests, use the option --unit-only. In this case, you do not need to include the --dburi arg. So,
+```bash
+pytest test --unit-only
+```
+
 
 ## Using in an SQLAlchemy project
 
