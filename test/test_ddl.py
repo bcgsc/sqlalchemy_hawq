@@ -4,6 +4,7 @@ import decimal
 import pytest
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.testing.suite import fixtures
+from sqlalchemy.testing import assert_raises
 
 from hawq_sqlalchemy.partition import format_partition_value
 from hawq_sqlalchemy.point import Point
@@ -62,23 +63,19 @@ class TestPointSQLConversion(fixtures.TestBase):
 
     def test_string_to_tuple_incorrect(self):
         func = Point.result_processor(1, 2, 3)
-        with pytest.raises(SQLAlchemyHawqException):
-            assert func('(99,)') == (99,)
+        assert_raises(SQLAlchemyHawqException, func, '(99,)')
 
     def test_string_to_tuple_incorrect_2(self):
         func = Point.result_processor(1, 2, 3)
-        with pytest.raises(SQLAlchemyHawqException):
-            assert func('(,99)') == (99,)
+        assert_raises(SQLAlchemyHawqException, func, '(,99)')
 
     def test_string_to_tuple_incorrect_3(self):
         func = Point.result_processor(1, 2, 3)
-        with pytest.raises(SQLAlchemyHawqException):
-            assert func('(,)') == (99,)
+        assert_raises(SQLAlchemyHawqException, func, '(,)')
 
     def test_string_to_tuple_incorrect_4(self):
         func = Point.result_processor(1, 2, 3)
-        with pytest.raises(SQLAlchemyHawqException):
-            assert func('(a,b)') == (99,)
+        assert_raises(SQLAlchemyHawqException, func, '(a,b)')
 
     def test_none_to_none_result(self):
         func = Point.result_processor(1, 2, 3)
@@ -98,10 +95,8 @@ class TestPointSQLConversion(fixtures.TestBase):
 
     def test_tuple_to_string_incorrect(self):
         func = Point.bind_processor(1, 2)
-        with pytest.raises(SQLAlchemyHawqException):
-            assert func((None, 2)) == '(1, 2)'
+        assert_raises(SQLAlchemyHawqException, func, (None, 2))
 
     def test_tuple_to_string_incorrect_2(self):
         func = Point.bind_processor(1, 2)
-        with pytest.raises(SQLAlchemyHawqException):
-            assert func((2, None)) == '(1, 2)'
+        assert_raises(SQLAlchemyHawqException, func, (2, None))

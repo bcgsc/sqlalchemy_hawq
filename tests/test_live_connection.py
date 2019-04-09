@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer
 from sqlalchemy.exc import StatementError
-
+from sqlalchemy.testing.suite import fixtures
 
 from hawq_sqlalchemy.point import Point
 
@@ -48,7 +48,7 @@ def MockTable(base, test_engine, schemaname):
     return MockTable
 
 
-class TestWithLiveConnection:
+class TestWithLiveConnection(fixtures.TestBase):
     """
     A group of tests requiring a live connection.
     """

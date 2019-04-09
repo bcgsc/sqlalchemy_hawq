@@ -2,7 +2,7 @@
 Stub for sqlalchemy's unit tests.
 Imports and modifies some test subsuites.
 
-Skips tests of sqlalchemy functionality that Hawq dialect does not support.
+Disables tests of sqlalchemy functionality that Hawq dialect does not support.
 """
 
 from sqlalchemy.testing.suite import *
@@ -19,6 +19,8 @@ class ComponentReflectionTest():
     TODO: Check if they can be rewritten to run without indexes.
     """
 
+
+#TODO: make sure the tests can't be called if other requires are placed on them in sqla
 
 class SimpleUpdateDeleteTest(_SimpleUpdateDeleteTest):
     @testing.requires.delete_row_statement_for_append_only_table

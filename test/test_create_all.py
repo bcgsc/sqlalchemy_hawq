@@ -4,6 +4,7 @@ import pytest
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.testing.suite import fixtures
+from sqlalchemy.testing import assert_raises
 
 from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
 from hawq_sqlalchemy.point import Point
@@ -44,6 +45,7 @@ def base():
 
 class TestCreateAll(fixtures.TestBase):
     def test_multiple(self, base=declarative_base(), engine_spy=get_engine_spy()):
+
 
         class MockTable(base):
             __tablename__ = 'MockTable'
@@ -128,8 +130,7 @@ DISTRIBUTED BY (chrom)'''
             chrom = Column('chrom', Text(), primary_key=True)
 
         metadata = MockTable.__table__.metadata
-        with pytest.raises(ValueError):
-            metadata.create_all(engine_spy.engine)
+        assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
 
     def test_partition_by_list(self, base=declarative_base(), engine_spy=get_engine_spy()):
@@ -312,9 +313,7 @@ WITH (appendonly=True)'''
             chrom = Column('chrom', Text(), primary_key=True)
 
         metadata = MockTable.__table__.metadata
-
-        with pytest.raises(ValueError):
-            metadata.create_all(engine_spy.engine)
+        assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
     def test_orientation(self, base=declarative_base(), engine_spy=get_engine_spy()):
 
@@ -351,9 +350,8 @@ WITH (orientation=ROW)'''
             chrom = Column('chrom', Text(), primary_key=True)
 
         metadata = MockTable.__table__.metadata
+        assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
-        with pytest.raises(ValueError):
-            metadata.create_all(engine_spy.engine)
 
     def test_compresstype(self, engine_spy=get_engine_spy()):
 
@@ -392,9 +390,8 @@ WITH (compresstype={})'''.format(compresstype)
             chrom = Column('chrom', Text(), primary_key=True)
 
         metadata = MockTable.__table__.metadata
+        assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
-        with pytest.raises(ValueError):
-            metadata.create_all(engine_spy.engine)
 
     def test_compresslevel(self, engine_spy=get_engine_spy()):
 
@@ -433,10 +430,7 @@ WITH (compresslevel={})'''.format(compresslevel)
             chrom = Column('chrom', Text(), primary_key=True)
 
         metadata = MockTable.__table__.metadata
-
-        with pytest.raises(ValueError):
-            metadata.create_all(engine_spy.engine)
-
+        assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
     def test_point_type(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -480,9 +474,8 @@ WITH (compresslevel={})'''.format(compresslevel)
         metadata.create_all(engine_spy.engine)
 
         delete_stmt = MockTable.__table__.delete().where(id == 3)
+        assert_raises(NotImplementedError, delete_stmt.compile, engine_spy.engine)
 
-        with pytest.raises(NotImplementedError):
-            delete_stmt.compile(engine_spy.engine)
 
     def test_delete_statement_bare(self, base=declarative_base(), engine_spy=get_engine_spy()):
 
