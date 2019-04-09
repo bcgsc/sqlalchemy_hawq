@@ -48,9 +48,9 @@ To run only the SQLAlchemy test suite, use the option --sqla-only:
 pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --sqla-only
 ```
 
-To run only the unit (local) tests, use the option --unit-only. In this case, you do not need to include the --dburi arg. So,
+To run only the unit (local) tests, use the option --unit-only:
 ```bash
-pytest test --unit-only
+pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --unit-only
 ```
 
 
