@@ -13,6 +13,8 @@ from hawq_sqlalchemy.point import Point
 
 
 class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
+
+    # ensures this test class is run when option --backend-only is specified
     __backend__ = True
 
     @classmethod
@@ -30,7 +32,6 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
             id = Column('id', Integer, primary_key=True)
             ptest = Column('ptest', Point)
             __table_args__ = {'schema': 'test_schema'}
-
 
     def test_inner_live_setup(self):
         """
@@ -53,7 +54,6 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
 
         assert expected == (5, 1)
 
-
     def test_no_implicit_returning_clause(self):
         """
         Checks that the dialect is passing 'implicit_returning'=False
@@ -64,7 +64,6 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
         ins = MockTable.__table__.insert().values(test=5).compile()
         expected = str(ins)
         assert expected == 'INSERT INTO test_schema.mocktable (id, test) VALUES (%(id)s, %(test)s)'
-
 
     def test_point_type_insert_select(self):
         """
@@ -82,7 +81,6 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
         expected = (14, 201)
         assert expected == res[0].ptest
 
-
     def test_point_type_insert_select_nonetype(self):
         """
         Checks that none-type point type data is inserted and retrieved correctly.
@@ -98,7 +96,6 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
 
         expected = None
         assert expected == res[0].ptest
-
 
     def test_point_type_insert_select_none_in_tuple_type(self):
         """
@@ -116,13 +113,13 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
         expected = None
         assert expected == res[0].ptest
 
-
     def test_point_type_insert_select_mixed_type(self):
         """
         Checks that exception is raised when mixed none and non-none-type data is passed
         """
         point_table = self.classes.PointTable
         session = Session()
+
         def func():
             """
             Ensure session is closed before exception is raised
@@ -136,13 +133,13 @@ class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
                 raise e
         assert_raises(StatementError, func)
 
-
     def test_point_type_insert_select_mixed_type_2(self):
         """
         Checks that exception is raised when mixed none and non-none-type data is passed
         """
         point_table = self.classes.PointTable
         session = Session()
+
         def func():
             """
             Ensure session is closed before exception is raised

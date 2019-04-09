@@ -18,6 +18,7 @@ class ComponentReflectionTest():
     TODO: Check if they can be rewritten to run without indexes.
     """
 
+
 class SimpleUpdateDeleteTest(_SimpleUpdateDeleteTest):
     @testing.requires.delete_row_statement_for_append_only_table
     def test_delete(self):
@@ -35,7 +36,7 @@ class TableDDLTest(_TableDDLTest):
 
 
 class ServerSideCursorsTest(_ServerSideCursorsTest):
-    def tearDown(self):
+    def tearDown(self):  # noqa
         """
         Overrides parent teardown method to prevent calling dispose
         on engine that does not exist if test is skipped.

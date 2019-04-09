@@ -1,16 +1,20 @@
-""" Tests Hawq compiler output without connecting to live db. """
-
-import pytest
+"""
+Tests Hawq compiler output without connecting to live db.
+"""
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
 
-from hawq_sqlalchemy.partition import RangePartition, ListPartition, RangeSubpartition, ListSubpartition
+from hawq_sqlalchemy.partition import (RangePartition,
+                                       ListPartition,
+                                       RangeSubpartition,
+                                       ListSubpartition)
 from hawq_sqlalchemy.point import Point
 
 
 def get_engine_spy():
+
     class MetadataDumpSpy:
         def __init__(self):
             self.sql = None
@@ -19,7 +23,9 @@ def get_engine_spy():
         def __call__(self, sql, *args, **kwargs):
             self.sql = str(sql.compile(dialect=self.engine.dialect))
     spy = MetadataDumpSpy()
-    engine = create_engine('hawq://localhost/dummy_user', strategy='mock', executor=spy)
+    engine = create_engine('hawq://localhost/dummy_user',
+                           strategy='mock',
+                           executor=spy)
     spy.engine = engine
     return spy
 
@@ -34,7 +40,10 @@ class TestCreateAll(fixtures.TestBase):
                 UniqueConstraint('chrom'),
                 {
                     'hawq_distributed_by': 'chrom',
-                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}),
+                    'hawq_partition_by': ListPartition('chrom',
+                                                       {'chr1': '1',
+                                                        'chr2': '2',
+                                                        'chr3': '3'}),
                     'hawq_appendonly': True
                 }
             )
@@ -121,7 +130,10 @@ DISTRIBUTED BY (chrom)'''
             __table_args__ = (
                 UniqueConstraint('chrom'),
                 {
-                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})
+                    'hawq_partition_by': ListPartition('chrom',
+                                                       {'chr1': '1',
+                                                        'chr2': '2',
+                                                        'chr3': '3'})
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -165,7 +177,9 @@ PARTITION BY RANGE (chrom)
         assert expected == engine_spy.sql.strip()
         print(engine_spy.sql.strip())
 
-    def test_partition_by_range_subpartition_by_list_and_range(self, base=declarative_base(), engine_spy=get_engine_spy()):
+    def test_partition_by_range_subpartition_by_list_and_range(self,
+                                                               base=declarative_base(),
+                                                               engine_spy=get_engine_spy()):
 
         class MockTable(base):
             __tablename__ = 'MockTable'
@@ -173,7 +187,7 @@ PARTITION BY RANGE (chrom)
                 {
                     'hawq_partition_by': RangePartition('year', 2002, 2012, 1, [
                         RangeSubpartition('month', 1, 13, 1),
-                        ListSubpartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'})
+                        ListSubpartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'})
                     ])
                 }
             )
@@ -210,17 +224,20 @@ PARTITION BY RANGE (year)
 )'''
         assert expected == engine_spy.sql.strip()
 
-
-    def test_partition_by_list_subpartition_by_range_and_range(self, base=declarative_base(), engine_spy=get_engine_spy()):
+    def test_partition_by_list_subpartition_by_range_and_range(self,
+                                                               base=declarative_base(),
+                                                               engine_spy=get_engine_spy()):
 
         class MockTable(base):
             __tablename__ = 'MockTable'
             __table_args__ = (
                 {
-                    'hawq_partition_by': ListPartition('chrom', {'chr1': '1', 'chr2':'2', 'chr3':'3'}, [
-                        RangeSubpartition('year', 2002, 2012, 1),
-                        RangeSubpartition('month', 1, 13, 1),
-                    ])
+                    'hawq_partition_by': ListPartition('chrom',
+                                                       {'chr1': '1',
+                                                        'chr2': '2',
+                                                        'chr3': '3'},
+                                                       [RangeSubpartition('year', 2002, 2012, 1),
+                                                        RangeSubpartition('month', 1, 13, 1), ])
                 }
             )
             id = Column('id', Integer(), primary_key=True, autoincrement=False)
@@ -258,7 +275,6 @@ PARTITION BY LIST (chrom)
 )'''
         assert expected == engine_spy.sql.strip()
 
-
     def test_appendonly(self, base=declarative_base(), engine_spy=get_engine_spy()):
 
         class MockTable(base):
@@ -267,7 +283,6 @@ PARTITION BY LIST (chrom)
                 UniqueConstraint('chrom'),
                 {
                     'hawq_appendonly': True,
-
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -288,7 +303,6 @@ WITH (appendonly=True)'''
                 UniqueConstraint('chrom'),
                 {
                     'hawq_appendonly': 'bad value',
-
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -304,7 +318,6 @@ WITH (appendonly=True)'''
                 UniqueConstraint('chrom'),
                 {
                     'hawq_orientation': 'row',
-
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -325,7 +338,6 @@ WITH (orientation=ROW)'''
                 UniqueConstraint('chrom'),
                 {
                     'hawq_orientation': 'bad value',
-
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -333,18 +345,17 @@ WITH (orientation=ROW)'''
         metadata = MockTable.__table__.metadata
         assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
-
     def test_compresstype(self, engine_spy=get_engine_spy()):
 
         for compresstype in {'ZLIB', 'SNAPPY', 'GZIP', 'NONE'}:
             Base = declarative_base()
+
             class MockTable(Base):
                 __tablename__ = 'MockTable'
                 __table_args__ = (
                     UniqueConstraint('chrom'),
                     {
                         'hawq_compresstype': compresstype,
-
                     }
                 )
                 chrom = Column('chrom', Text(), primary_key=True)
@@ -365,7 +376,6 @@ WITH (compresstype={})'''.format(compresstype)
                 UniqueConstraint('chrom'),
                 {
                     'hawq_compresstype': 'tar',
-
                 }
             )
             chrom = Column('chrom', Text(), primary_key=True)
@@ -373,18 +383,17 @@ WITH (compresstype={})'''.format(compresstype)
         metadata = MockTable.__table__.metadata
         assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
-
     def test_compresslevel(self, engine_spy=get_engine_spy()):
 
         for compresslevel in range(10):
             Base = declarative_base()
+
             class MockTable(Base):
                 __tablename__ = 'MockTable'
                 __table_args__ = (
                     UniqueConstraint('chrom'),
                     {
                         'hawq_compresslevel': compresslevel,
-
                     }
                 )
                 chrom = Column('chrom', Text(), primary_key=True)
@@ -414,10 +423,10 @@ WITH (compresslevel={})'''.format(compresslevel)
         assert_raises(ValueError, metadata.create_all, engine_spy.engine)
 
     def test_point_type(self, base=declarative_base(), engine_spy=get_engine_spy()):
+
         class MockTable(base):
             __tablename__ = 'MockTable'
             ptest = Column('ptest', Point, primary_key=True)
-
 
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
@@ -426,7 +435,9 @@ WITH (compresslevel={})'''.format(compresslevel)
 )'''
         assert expected == engine_spy.sql.strip()
 
-    def test_compile_point_type_from_list_input(self, base=declarative_base(), engine_spy=get_engine_spy()):
+    def test_compile_point_type_from_list_input(self,
+                                                base=declarative_base(),
+                                                engine_spy=get_engine_spy()):
 
         class MockTable(base):
             __tablename__ = 'MockTable'
@@ -443,7 +454,9 @@ WITH (compresslevel={})'''.format(compresslevel)
 
         assert expected == params
 
-    def test_delete_statement_with_filter_clauses(self, base=declarative_base(), engine_spy=get_engine_spy()):
+    def test_delete_statement_with_filter_clauses(self,
+                                                  base=declarative_base(),
+                                                  engine_spy=get_engine_spy()):
 
         class MockTable(base):
             __tablename__ = 'MockTable'
@@ -456,7 +469,6 @@ WITH (compresslevel={})'''.format(compresslevel)
 
         delete_stmt = MockTable.__table__.delete().where(id == 3)
         assert_raises(NotImplementedError, delete_stmt.compile, engine_spy.engine)
-
 
     def test_delete_statement_bare(self, base=declarative_base(), engine_spy=get_engine_spy()):
 

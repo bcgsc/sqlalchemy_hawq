@@ -1,15 +1,19 @@
-import sqlalchemy
+"""
+Imports and modifies SQLAlchemy's Requirements class.
+
+Markers from this class can be used to switch marked tests
+on and off, so that only the functionality the dialect
+supports is tested.
+"""
 from sqlalchemy.testing.requirements import SuiteRequirements
 from sqlalchemy.testing import exclusions
-from sqlalchemy.engine.url import URL
 
 
 class Requirements(SuiteRequirements):
-
-    @property
-    def test_exclusion(self):
-        return exclusions.open()
-
+    """
+    Changes the settings of some requirements to work with Hawq.
+    Adds some requirements specific to Hawq.
+    """
     @property
     def returning(self):
         """
@@ -56,7 +60,6 @@ class Requirements(SuiteRequirements):
         Delete append-only table statement not supported yet\n')
         """
         return exclusions.closed()
-
 
     @property
     def select_for_update_share(self):

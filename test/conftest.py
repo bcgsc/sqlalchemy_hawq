@@ -1,14 +1,9 @@
 """
 The entry point for the sqlalchemy test suite.
 
-Two command line args are added and the test collector
+Command line args are added and the test collector
 is modified to check them.
  """
-
-import argparse
-
-
-import pytest
 
 
 from sqlalchemy.dialects import registry
@@ -24,18 +19,27 @@ registry.register('hawq+psycopq2', 'hawq_sqlalchemy.dialect', 'HawqDialect')
 
 def pytest_addoption(parser):
     """
-    Adds 2 custom args, then calls the sqlalchemy pytest_addoption method to handle the rest
+    Adds custom args, then calls the sqlalchemy pytest_addoption method to handle the rest
     """
-    parser.addoption("--custom-only", action="store_true", default=False, help="run only hawq_sqlalchemy custom tests")
-    parser.addoption("--unit-only", action="store_true", default=False, help="run only hawq_sqlalchemy custom unit tests")
-    parser.addoption("--sqla-only", action="store_true", default=False, help="run only the sqlalchemy test suite")
-    
+    parser.addoption("--custom-only",
+                     action="store_true",
+                     default=False,
+                     help="run only hawq_sqlalchemy custom tests")
+    parser.addoption("--unit-only",
+                     action="store_true",
+                     default=False,
+                     help="run only hawq_sqlalchemy custom unit tests")
+    parser.addoption("--sqla-only",
+                     action="store_true",
+                     default=False,
+                     help="run only the sqlalchemy test suite")
+
     pytestplugin.pytest_addoption(parser)
 
 
 def pytest_pycollect_makeitem(collector, name, obj):
     """
-    Decides which tests not to run, then passes the rest of the work to 
+    Decides which tests not to run, then passes the rest of the work to
     the sqla method with the same name
     """
     if inspect.isclass(obj) and plugin_base.want_class(obj):
@@ -52,7 +56,7 @@ def pytest_pycollect_makeitem(collector, name, obj):
             if collector.name == 'test_live_connection.py':
                 return []
 
-        # only run the sqla test suite 
+        # only run the sqla test suite
         if config.options.sqla_only:
             if collector.name != 'test_suite.py':
                 return[]

@@ -1,10 +1,7 @@
-import decimal
-
-
-import pytest
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
+
 
 from hawq_sqlalchemy.partition import format_partition_value
 from hawq_sqlalchemy.point import Point
@@ -79,15 +76,15 @@ class TestPointSQLConversion(fixtures.TestBase):
 
     def test_none_to_none_result(self):
         func = Point.result_processor(1, 2, 3)
-        assert func(None) == None
+        assert func(None) is None
 
     def test_none_to_none_bind(self):
         func = Point.bind_processor(1, 2)
-        assert func((None, None)) == None
+        assert func((None, None)) is None
 
     def test_none_to_none_bind_2(self):
         func = Point.bind_processor(1, 2)
-        assert func(None) == None
+        assert func(None) is None
 
     def test_tuple_to_string(self):
         func = Point.bind_processor(1, 2)
