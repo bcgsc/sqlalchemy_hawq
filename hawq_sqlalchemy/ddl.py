@@ -80,9 +80,9 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
             if not isinstance(inherits, (list, tuple)):
                 inherits = (inherits, )
             table_opts.append(
-                '\nINHERITS ( ' +
-                ', '.join(self.preparer.quote(name) for name in inherits) +
-                ' )')
+                '\nINHERITS ( '
+                + ', '.join(self.preparer.quote(name) for name in inherits)
+                + ' )')
 
         table_opts.append(with_clause(pg_opts))
 
@@ -105,6 +105,10 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
 
         if pg_opts['partition_by']:
             table_opts.append('\n' + partition_clause(table, pg_opts['partition_by']))
+
+        # should this be in vardb_schema rather than hawq_sqlalchemy?
+        if pg_opts['actualized_view'] is not None:
+            table.schema = 'views'
 
         return ''.join(table_opts)
 

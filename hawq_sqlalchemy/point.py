@@ -39,7 +39,8 @@ class Point(UserDefinedType):
                         raise SQLAlchemyHawqException('Both values must be non-null or no data will be saved for Point({})'.format(value))
                     return None
                 return str(value)
-            except:
+            # TODO: more specific exception
+            except BaseException:
                 raise SQLAlchemyHawqException('Unexpected input type for Point ({})'.format(value))
         return process
 
