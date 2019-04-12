@@ -21,19 +21,44 @@ def pytest_addoption(parser):
     """
     Adds custom args, then calls the sqlalchemy pytest_addoption method to handle the rest
     """
-    parser.addoption("--custom-only",
-                     action="store_true",
-                     default=False,
-                     help="run only hawq_sqlalchemy custom tests")
-    parser.addoption("--unit-only",
-                     action="store_true",
-                     default=False,
-                     help="run only hawq_sqlalchemy custom unit tests")
-    parser.addoption("--sqla-only",
-                     action="store_true",
-                     default=False,
-                     help="run only the sqlalchemy test suite")
+    parser.addoption(
+        "--custom-only",
+        action="store_true",
+        default=False,
+        help="run only hawq_sqlalchemy custom tests")
+    parser.addoption(
+        "--unit-only",
+        action="store_true",
+        default=False,
+        help="run only hawq_sqlalchemy custom unit tests")
+    parser.addoption(
+        "--sqla-only",
+        action="store_true",
+        default=False,
+        help="run only the sqlalchemy test suite")
+    parser.addoption(
+        "--offline-only",
+        action="store_true",
+        default=False,
+        help="run only the tests that don't require a live connection")
     pytestplugin.pytest_addoption(parser)
+
+
+def pytest_sessionstart(session):
+
+    # skip setting up engine, but do everything else
+    if plugin_base.options.offline_only:
+
+        # Lazy setup of other options (post coverage)
+        for fn in plugin_base.post_configure:
+
+            if fn.__qualname__ == '_engine_uri':
+                continue
+
+            fn(plugin_base.options, plugin_base.file_config)
+
+    else:
+        pytestplugin.pytest_sessionstart(session)
 
 
 def pytest_pycollect_makeitem(collector, name, obj):
@@ -42,17 +67,22 @@ def pytest_pycollect_makeitem(collector, name, obj):
     the sqla method with the same name
     """
 
-    if inspect.isclass(obj) and plugin_base.want_class(obj):
+    # if --offline_only, fixtures have not been initialized.
+    # only run custom unit tests:
+    if plugin_base.options.offline_only:
+        if collector.name == 'test_suite.py':
+            return []
+        elif collector.name == 'test_live_connection.py':
+            return []
+        elif inspect.isclass(obj) and name.startswith('Test'):
+            return pytest.Class(name, parent=collector)
+        elif inspect.isfunction(obj) and name.startswith('test_'):
+            return pytest.Function(name, parent=collector)
+        else:
+            return []
 
-        # does not run tests requiring db connection
-        # if sqlite connection is passed. using
-        # sqlite as a dummy so tests will run, tests
-        # should never use it.
-        if str(config.db_url) == 'sqlite:///:memory:':
-            if collector.name == 'test_suite.py':
-                return []
-            if collector.name == 'test_live_connection.py':
-                return []
+
+    if inspect.isclass(obj) and plugin_base.want_class(obj):
 
         # only run custom tests, not sqla_tests
         if config.options.custom_only:
@@ -73,3 +103,19 @@ def pytest_pycollect_makeitem(collector, name, obj):
 
         return pytestplugin.pytest_pycollect_makeitem(collector, name, obj)
     return pytestplugin.pytest_pycollect_makeitem(collector, name, obj)
+
+
+def pytest_runtest_setup(item):
+    if plugin_base.options.offline_only:
+        return
+    pytestplugin.pytest_runtest_setup(item)
+
+def pytest_runtest_teardown(item):
+    if plugin_base.options.offline_only:
+        return
+    pytestplugin.pytest_runtest_teardown(item)
+
+def pytest_sessionfinish(session):
+    if plugin_base.options.offline_only:
+        return
+    plugin_base.final_process_cleanup()
