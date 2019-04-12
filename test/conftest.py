@@ -11,6 +11,7 @@ from sqlalchemy.testing import config
 from sqlalchemy.testing.plugin import pytestplugin
 from sqlalchemy.testing.plugin import plugin_base
 from sqlalchemy.testing.plugin.pytestplugin import *
+from sqlalchemy.testing.plugin.pytestplugin import pytest, inspect
 
 
 registry.register('hawq', 'hawq_sqlalchemy.dialect', 'HawqDialect')
@@ -25,22 +26,23 @@ def pytest_addoption(parser):
         "--custom-only",
         action="store_true",
         default=False,
-        help="run only hawq_sqlalchemy custom tests")
+        help="run only hawq_sqlalchemy custom tests",
+    )
     parser.addoption(
         "--unit-only",
         action="store_true",
         default=False,
-        help="run only hawq_sqlalchemy custom unit tests")
+        help="run only hawq_sqlalchemy custom unit tests",
+    )
     parser.addoption(
-        "--sqla-only",
-        action="store_true",
-        default=False,
-        help="run only the sqlalchemy test suite")
+        "--sqla-only", action="store_true", default=False, help="run only the sqlalchemy test suite"
+    )
     parser.addoption(
         "--offline-only",
         action="store_true",
         default=False,
-        help="run only the tests that don't require a live connection")
+        help="run only the tests that don't require a live connection",
+    )
     pytestplugin.pytest_addoption(parser)
 
 
@@ -81,7 +83,6 @@ def pytest_pycollect_makeitem(collector, name, obj):
         else:
             return []
 
-
     if inspect.isclass(obj) and plugin_base.want_class(obj):
 
         # only run custom tests, not sqla_tests
@@ -99,7 +100,7 @@ def pytest_pycollect_makeitem(collector, name, obj):
         # only run the sqla test suite
         if config.options.sqla_only:
             if collector.name != 'test_suite.py':
-                return[]
+                return []
 
         return pytestplugin.pytest_pycollect_makeitem(collector, name, obj)
     return pytestplugin.pytest_pycollect_makeitem(collector, name, obj)
@@ -110,10 +111,12 @@ def pytest_runtest_setup(item):
         return
     pytestplugin.pytest_runtest_setup(item)
 
+
 def pytest_runtest_teardown(item):
     if plugin_base.options.offline_only:
         return
     pytestplugin.pytest_runtest_teardown(item)
+
 
 def pytest_sessionfinish(session):
     if plugin_base.options.offline_only:
