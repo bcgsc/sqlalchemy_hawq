@@ -106,10 +106,6 @@ class HawqDDLCompiler(postgresql.base.PGDDLCompiler):
         if pg_opts['partition_by']:
             table_opts.append('\n' + partition_clause(table, pg_opts['partition_by']))
 
-        # should this be in vardb_schema rather than hawq_sqlalchemy?
-        if pg_opts['actualized_view'] is not None:
-            table.schema = 'views'
-
         return ''.join(table_opts)
 
     def create_table_constraints(self, table, _include_foreign_key_constraints=None):
