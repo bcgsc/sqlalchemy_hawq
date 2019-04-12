@@ -4,6 +4,17 @@
 This is a custom dialect for using SQLAlchemy with a [HAWQ](http://hawq.apache.org/docs/userguide/2.3.0.0-incubating/tutorial/overview.html)
 database.
 
+It extends the Postgresql dialect.
+
+Features include:
+- Hawq options for 'CREATE TABLE' statements
+- a point class
+- a modified 'DELETE' statement for compatibility with SQLAlchemy's test suite
+
+Unless specificaly overridden, any functionality in SQLAlchemy's Postgresql dialect
+is also available.
+
+
 ## Getting Started
 
 ### Install (For developers)
@@ -12,7 +23,7 @@ database.
 clone this repository
 
 ```bash
-git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/dat/hawq_sqlalchemy.git
+git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/hawq_sqlalchemy.git
 cd hawq_sqlalchemy
 ```
 
@@ -31,28 +42,9 @@ pip install -e .[dev]
 
 ### Run Tests
 
-The whole test package can be run using:
-
 ```bash
-pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor
+pytest tests
 ```
-where your user name and hawq pass are the credentials for connecting to the test_refactor db.
-
-To run only the custom (local) tests, use the option --custom-only:
-```bash
-pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --custom-only
-```
-
-To run only the SQLAlchemy test suite, use the option --sqla-only:
-```bash
-pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --sqla-only
-```
-
-To run only the unit (local) tests, use the option --unit-only:
-```bash
-pytest test --dburi hawq://$YOURUSERNAME:$YOURHAWQPASS@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor --unit-only
-```
-
 
 ## Using in an SQLAlchemy project
 
@@ -67,7 +59,7 @@ Then the plugin can be used like any other engine
 ```python
 from sqlalchemy import create_engine
 
-engine = create_engine('hawq://....')
+engine = create_engine('hawq://USERNAME:PASSWORD@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor/')
 ```
 
 Hawq specific table arguments are also supported (Not all features are supported yet)
@@ -83,12 +75,12 @@ Hawq specific table arguments are also supported (Not all features are supported
 
 
 
-Partition arguments are 
-RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{name_of_partition=str:value_to_partition_on=str}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition. 
+Partition arguments are
+RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{name_of_partition=str:value_to_partition_on=str}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition.
 
-Subpartitions expect the same params as Partitions but without a nested subpartition array. 
+Subpartitions expect the same params as Partitions but without a nested subpartition array.
 
-Partition level is determined by the order of the subpartitions in the subpartition array. 
+Partition level is determined by the order of the subpartitions in the subpartition array.
 
 
 ---
@@ -110,4 +102,9 @@ class ExampleTable(Base):
     }
 
     attr1 = Column(Text())
+
+
+def main():
+    engine = create_engine()
+    engine.create_all()
 ```
