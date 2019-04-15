@@ -14,8 +14,8 @@ from sqlalchemy.testing.plugin.pytestplugin import *
 from sqlalchemy.testing.plugin.pytestplugin import pytest, inspect
 
 
-registry.register('hawq', 'hawq_sqlalchemy.dialect', 'HawqDialect')
-registry.register('hawq+psycopq2', 'hawq_sqlalchemy.dialect', 'HawqDialect')
+registry.register('hawq', 'sqlalchemy_hawq.dialect', 'HawqDialect')
+registry.register('hawq+psycopq2', 'sqlalchemy_hawq.dialect', 'HawqDialect')
 
 
 def pytest_addoption(parser):
@@ -26,13 +26,13 @@ def pytest_addoption(parser):
         "--custom-only",
         action="store_true",
         default=False,
-        help="run only hawq_sqlalchemy custom tests",
+        help="run only sqlalchemy_hawq custom tests",
     )
     parser.addoption(
         "--unit-only",
         action="store_true",
         default=False,
-        help="run only hawq_sqlalchemy custom unit tests",
+        help="run only sqlalchemy_hawq custom unit tests",
     )
     parser.addoption(
         "--sqla-only", action="store_true", default=False, help="run only the sqlalchemy test suite"

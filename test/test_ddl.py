@@ -3,9 +3,9 @@ from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
 
 
-from hawq_sqlalchemy.partition import format_partition_value
-from hawq_sqlalchemy.point import Point
-from hawq_sqlalchemy.point import SQLAlchemyHawqException
+from sqlalchemy_hawq.partition import format_partition_value
+from sqlalchemy_hawq.point import Point
+from sqlalchemy_hawq.point import SQLAlchemyHawqException
 
 
 class TestFormatPartitionValue(fixtures.TestBase):

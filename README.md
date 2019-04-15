@@ -1,5 +1,5 @@
 
-# Hawq Sqlalchemy
+# Sqlalchemy Hawq
 
 This is a custom dialect for using SQLAlchemy with a [HAWQ](http://hawq.apache.org/docs/userguide/2.3.0.0-incubating/tutorial/overview.html)
 database.
@@ -23,8 +23,8 @@ is also available.
 clone this repository
 
 ```bash
-git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/hawq_sqlalchemy.git
-cd hawq_sqlalchemy
+git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/sqlalchemy_hawq.git
+cd sqlalchemy_hawq
 ```
 
 create a virtual environment
@@ -48,10 +48,10 @@ pytest tests
 
 ## Using in an SQLAlchemy project
 
-Add hawq_sqlalchemy to your dependencies and install.
+Add sqlalchemy_hawq to your dependencies and install.
 
 ```bash
-pip install hawq_sqlalchemy
+pip install sqlalchemy_hawq
 ```
 
 Then the plugin can be used like any other engine

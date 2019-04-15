@@ -9,7 +9,7 @@ from sqlalchemy.testing import assert_raises
 from sqlalchemy.orm import Session
 
 
-from hawq_sqlalchemy.point import Point
+from sqlalchemy_hawq.point import Point
 
 
 class TestWithLiveConnection(fixtures.DeclarativeMappedTest):
