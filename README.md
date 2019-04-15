@@ -1,8 +1,19 @@
 
-# Hawq Sqlalchemy
+# Sqlalchemy Hawq
 
 This is a custom dialect for using SQLAlchemy with a [HAWQ](http://hawq.apache.org/docs/userguide/2.3.0.0-incubating/tutorial/overview.html)
 database.
+
+It extends the Postgresql dialect.
+
+Features include:
+- Hawq options for 'CREATE TABLE' statements
+- a point class
+- a modified 'DELETE' statement for compatibility with SQLAlchemy's test suite
+
+Unless specificaly overridden, any functionality in SQLAlchemy's Postgresql dialect
+is also available.
+
 
 ## Getting Started
 
@@ -12,8 +23,8 @@ database.
 clone this repository
 
 ```bash
-git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/hawq_sqlalchemy.git
-cd hawq_sqlalchemy
+git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/sqlalchemy_hawq.git
+cd sqlalchemy_hawq
 ```
 
 create a virtual environment
@@ -37,10 +48,10 @@ pytest tests
 
 ## Using in an SQLAlchemy project
 
-Add hawq_sqlalchemy to your dependencies and install.
+Add sqlalchemy_hawq to your dependencies and install.
 
 ```bash
-pip install hawq_sqlalchemy
+pip install sqlalchemy_hawq
 ```
 
 Then the plugin can be used like any other engine
@@ -48,7 +59,7 @@ Then the plugin can be used like any other engine
 ```python
 from sqlalchemy import create_engine
 
-engine = create_engine('hawq://....')
+engine = create_engine('hawq://USERNAME:PASSWORD@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor/')
 ```
 
 Hawq specific table arguments are also supported (Not all features are supported yet)
@@ -64,12 +75,12 @@ Hawq specific table arguments are also supported (Not all features are supported
 
 
 
-Partition arguments are 
-RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{name_of_partition=str:value_to_partition_on=str}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition. 
+Partition arguments are
+RangePartition(column_name=str, start=int, end=int, every=int, subpartitions=[]) or ListPartition(column_name=str, columns=dict{name_of_partition=str:value_to_partition_on=str}, subpartitions=[]),  where subpartitions is an array of RangeSubpartition and ListSubpartition.
 
-Subpartitions expect the same params as Partitions but without a nested subpartition array. 
+Subpartitions expect the same params as Partitions but without a nested subpartition array.
 
-Partition level is determined by the order of the subpartitions in the subpartition array. 
+Partition level is determined by the order of the subpartitions in the subpartition array.
 
 
 ---
@@ -91,4 +102,9 @@ class ExampleTable(Base):
     }
 
     attr1 = Column(Text())
+
+
+def main():
+    engine = create_engine()
+    engine.create_all()
 ```

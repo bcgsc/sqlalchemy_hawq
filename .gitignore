@@ -20,4 +20,5 @@ env
 
 # misc
 .DS_STORE
-
+*.db
+.pytest_cache*
