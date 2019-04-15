@@ -226,6 +226,7 @@ PARTITION BY RANGE (year)
             chrom = Column('chrom', Text())
 
         metadata = MockTable.__table__.metadata
+        metadata.create_all(engine_spy.engine)
         expected = ' '.join(
             '''CREATE TABLE "MockTable" (
 	id INTEGER NOT NULL,
