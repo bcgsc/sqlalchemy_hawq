@@ -176,7 +176,8 @@ PARTITION BY RANGE (chrom)
 
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
-        expected = '''CREATE TABLE "MockTable" (
+        expected = ' '.join(
+            '''CREATE TABLE "MockTable" (
 	id INTEGER NOT NULL,
 	year INTEGER,
 	month INTEGER,
@@ -200,8 +201,9 @@ PARTITION BY RANGE (year)
 (
     START (2002) END (2012) EVERY (1),
     DEFAULT PARTITION extra
-)'''
-        assert expected == engine_spy.sql.strip()
+)'''.split()
+        )
+        assert expected == ' '.join((engine_spy.sql.strip()).split())
 
     def test_partition_by_list_subpartition_by_range_and_range(
         self, base=declarative_base(), engine_spy=get_engine_spy()
@@ -224,7 +226,8 @@ PARTITION BY RANGE (year)
             chrom = Column('chrom', Text())
 
         metadata = MockTable.__table__.metadata
-        expected = '''CREATE TABLE "MockTable" (
+        expected = ' '.join(
+            '''CREATE TABLE "MockTable" (
 	id INTEGER NOT NULL,
 	year INTEGER,
 	month INTEGER,
@@ -249,8 +252,9 @@ PARTITION BY LIST (chrom)
     PARTITION chr2 VALUES ('2'),
     PARTITION chr3 VALUES ('3'),
     DEFAULT PARTITION other
-)'''
-        assert expected == engine_spy.sql.strip()
+)'''.split()
+        )
+        assert expected == ' '.join((engine_spy.sql.strip()).split())
 
     def test_appendonly(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
