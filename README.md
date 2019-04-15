@@ -61,6 +61,7 @@ from sqlalchemy import create_engine
 
 engine = create_engine('hawq://USERNAME:PASSWORD@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor/')
 ```
+For further details on how to use the sqlalchemy engine, see https://docs.sqlalchemy.org/en/13/core/engines.html.
 
 Hawq specific table arguments are also supported (Not all features are supported yet)
 
@@ -108,3 +109,5 @@ def main():
     engine = create_engine()
     engine.create_all()
 ```
+
+---

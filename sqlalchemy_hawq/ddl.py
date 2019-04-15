@@ -3,6 +3,7 @@ Data definition language support for the Apache Hawq database
 '''
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import schema
+from sqlalchemy_views import CreateView, DropView
 
 
 from .partition import partition_clause
