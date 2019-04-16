@@ -10,7 +10,7 @@ DOCUMENTATION_REQS = ['sphinx']
 TEST_REQS = ['pytest', 'pytest-cov', 'mock', 'pytest-xdist']
 
 # Dependencies required for deploying to an index server
-DEPLOYMENT_REQS = ['twine']
+DEPLOYMENT_REQS = ['twine', 'wheel']
 
 
 PACKAGES = ['test', 'sqlalchemy_hawq']
@@ -24,6 +24,7 @@ setup(
         'docs': DOCUMENTATION_REQS,
         'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS,
         'test': TEST_REQS,
+        'deploy': DEPLOYMENT_REQS,
     },
     python_requires='>=3',
     author_email='creisle@bcgsc.ca',
