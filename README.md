@@ -78,8 +78,7 @@ https://github.com/zzzeek/sqlalchemy/blob/master/README.dialects.rst for more in
 test configuration. Note that no default db is stored in sqlalchemy_hawq's setup.cfg.
 
 
-
-## Using in an SQLAlchemy project
+## Using in a SQLAlchemy project
 
 ### How to incorporate sqlalchemy-hawq
 
@@ -154,39 +153,7 @@ columns, in order to reduce search time on those columns. The parent table can t
 to without any further reference to the partitions, as Hawq handles all the parent-partition
 interactions.
 
-Using sqlalchemy-hawq syntax to define a partition:
-
-```python
-class ExampleTable(Base):
-    __tablename__ = 'example_table'
-
-    __table_args__ = {
-        'hawq_distributed_by': 'attr1'
-        'hawq_appendonly': 'True'
-    }
-
-    attr1 = Column(Integer())
-    attr2 = Column(Integer())
-
-```
-
-The SQL output:
-
-
-
-
-
-The resulting tables:
-
-
-
-
-
-
-
-
-
-Partition arguments are
+Partition arguments are:
 
 ```python
 RangePartition(
@@ -229,3 +196,156 @@ Note that the params are the same for the Subpartitions are for the Partitions, 
 Subpartitions do not have a nested subpartition array.
 
 Partition level is determined by the order of the subpartitions in the subpartition array.
+
+
+Using sqlalchemy-hawq syntax to define a partition:
+
+```python
+class MockTable(base):
+    __tablename__ = 'MockTable'
+    __table_args__ = {
+        'hawq_partition_by': RangePartition(
+            'year',
+            2019,
+            2012,
+            1,
+            [
+                RangeSubpartition(
+                    'quarter',
+                    1,
+                    5,
+                    1),
+                ListSubpartition(
+                    'chrom',
+                    {
+                        'chr1': '1',
+                        'chr2': '2',
+                        'chr3': '3'}),
+            ],
+        )
+    }
+    id = Column('id', Integer(), primary_key=True, autoincrement=False)
+    year = Column('year', Integer())
+    month = Column('month', Integer())
+    chrom = Column('chrom', Text())
+```
+
+The SQL output:
+
+```sql
+'''CREATE TABLE "MockTable" (
+	id INTEGER NOT NULL,
+	year INTEGER,
+	quarter INTEGER,
+	chrom TEXT
+)
+PARTITION BY RANGE (year)
+    SUBPARTITION BY RANGE (quarter)
+    SUBPARTITION TEMPLATE
+    (
+        START (1) END (5) EVERY (1),
+        DEFAULT SUBPARTITION extra
+    )
+    SUBPARTITION BY LIST (chrom)
+    SUBPARTITION TEMPLATE
+    (
+        SUBPARTITION chr1 VALUES ('1'),
+        SUBPARTITION chr2 VALUES ('2'),
+        SUBPARTITION chr3 VALUES ('3'),
+        DEFAULT SUBPARTITION other
+    )
+(
+    START (2009) END (2012) EVERY (2),
+    DEFAULT PARTITION extra
+)'''
+```
+
+
+The resulting tables:
+
+
+```sql
+test_refactor=> \dt
+                            List of relations
+ Schema |                     Name                      | Type  |  Owner
+--------+-----------------------------------------------+-------+---------
+ public | MockTable                                     | table | elewis
+ public | MockTable_1_prt_2                             | table | elewis
+ public | MockTable_1_prt_2_2_prt_2                     | table | elewis
+ public | MockTable_1_prt_2_2_prt_2_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_2_2_prt_2_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_2_2_prt_2_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_2_2_prt_2_3_prt_other         | table | elewis
+ public | MockTable_1_prt_2_2_prt_3                     | table | elewis
+ public | MockTable_1_prt_2_2_prt_3_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_2_2_prt_3_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_2_2_prt_3_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_2_2_prt_3_3_prt_other         | table | elewis
+ public | MockTable_1_prt_2_2_prt_4                     | table | elewis
+ public | MockTable_1_prt_2_2_prt_4_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_2_2_prt_4_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_2_2_prt_4_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_2_2_prt_4_3_prt_other         | table | elewis
+ public | MockTable_1_prt_2_2_prt_5                     | table | elewis
+ public | MockTable_1_prt_2_2_prt_5_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_2_2_prt_5_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_2_2_prt_5_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_2_2_prt_5_3_prt_other         | table | elewis
+ public | MockTable_1_prt_2_2_prt_extra                 | table | elewis
+ public | MockTable_1_prt_2_2_prt_extra_3_prt_chr1      | table | elewis
+ public | MockTable_1_prt_2_2_prt_extra_3_prt_chr2      | table | elewis
+ public | MockTable_1_prt_2_2_prt_extra_3_prt_chr3      | table | elewis
+ public | MockTable_1_prt_2_2_prt_extra_3_prt_other     | table | elewis
+ public | MockTable_1_prt_3                             | table | elewis
+ public | MockTable_1_prt_3_2_prt_2                     | table | elewis
+ public | MockTable_1_prt_3_2_prt_2_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_3_2_prt_2_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_3_2_prt_2_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_3_2_prt_2_3_prt_other         | table | elewis
+ public | MockTable_1_prt_3_2_prt_3                     | table | elewis
+ public | MockTable_1_prt_3_2_prt_3_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_3_2_prt_3_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_3_2_prt_3_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_3_2_prt_3_3_prt_other         | table | elewis
+ public | MockTable_1_prt_3_2_prt_4                     | table | elewis
+ public | MockTable_1_prt_3_2_prt_4_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_3_2_prt_4_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_3_2_prt_4_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_3_2_prt_4_3_prt_other         | table | elewis
+ public | MockTable_1_prt_3_2_prt_5                     | table | elewis
+ public | MockTable_1_prt_3_2_prt_5_3_prt_chr1          | table | elewis
+ public | MockTable_1_prt_3_2_prt_5_3_prt_chr2          | table | elewis
+ public | MockTable_1_prt_3_2_prt_5_3_prt_chr3          | table | elewis
+ public | MockTable_1_prt_3_2_prt_5_3_prt_other         | table | elewis
+ public | MockTable_1_prt_3_2_prt_extra                 | table | elewis
+ public | MockTable_1_prt_3_2_prt_extra_3_prt_chr1      | table | elewis
+ public | MockTable_1_prt_3_2_prt_extra_3_prt_chr2      | table | elewis
+ public | MockTable_1_prt_3_2_prt_extra_3_prt_chr3      | table | elewis
+ public | MockTable_1_prt_3_2_prt_extra_3_prt_other     | table | elewis
+ public | MockTable_1_prt_extra                         | table | elewis
+ public | MockTable_1_prt_extra_2_prt_2                 | table | elewis
+ public | MockTable_1_prt_extra_2_prt_2_3_prt_chr1      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_2_3_prt_chr2      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_2_3_prt_chr3      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_2_3_prt_other     | table | elewis
+ public | MockTable_1_prt_extra_2_prt_3                 | table | elewis
+ public | MockTable_1_prt_extra_2_prt_3_3_prt_chr1      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_3_3_prt_chr2      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_3_3_prt_chr3      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_3_3_prt_other     | table | elewis
+ public | MockTable_1_prt_extra_2_prt_4                 | table | elewis
+ public | MockTable_1_prt_extra_2_prt_4_3_prt_chr1      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_4_3_prt_chr2      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_4_3_prt_chr3      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_4_3_prt_other     | table | elewis
+ public | MockTable_1_prt_extra_2_prt_5                 | table | elewis
+ public | MockTable_1_prt_extra_2_prt_5_3_prt_chr1      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_5_3_prt_chr2      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_5_3_prt_chr3      | table | elewis
+ public | MockTable_1_prt_extra_2_prt_5_3_prt_other     | table | elewis
+ public | MockTable_1_prt_extra_2_prt_extra             | table | elewis
+ public | MockTable_1_prt_extra_2_prt_extra_3_prt_chr1  | table | elewis
+ public | MockTable_1_prt_extra_2_prt_extra_3_prt_chr2  | table | elewis
+ public | MockTable_1_prt_extra_2_prt_extra_3_prt_chr3  | table | elewis
+ public | MockTable_1_prt_extra_2_prt_extra_3_prt_other | table | elewis
+ ```
