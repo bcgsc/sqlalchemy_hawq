@@ -112,6 +112,7 @@ Hawq specific table arguments are also supported (Not all features are supported
 | hawq_orientation | str | `'ROW'` | expects one of `{'ROW', 'PARQUET'}` |
 | hawq_compresstype | str | `'ZLIB'` | expects one of `{'ZLIB', 'SNAPPY', 'GZIP', 'NONE'}` |
 | hawq_compresslevel | int | `0` | expects an integer between 0-9 |
+| hawq_bucketnum | int | `6` | expects an integer between 0 and `default_hash_table_bucket_number`
 
 ---
 
