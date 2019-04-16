@@ -7,7 +7,7 @@ INSTALL_REQS = ['sqlalchemy>=1.2.12[postgresql]', 'psycopg2-binary', 'sqlalchemy
 DOCUMENTATION_REQS = ['sphinx']
 
 # Dependencies required only for running tests
-TEST_REQS = ['pytest', 'pytest-cov', 'mock', 'pytest-xdist']
+TEST_REQS = ['pytest>=4.4.0', 'pytest-cov', 'mock', 'pytest-xdist']
 
 # Dependencies required for deploying to an index server
 DEPLOYMENT_REQS = ['twine']
