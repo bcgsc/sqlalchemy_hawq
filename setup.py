@@ -18,7 +18,7 @@ PACKAGES = ['test', 'sqlalchemy_hawq']
 setup(
     name='sqlalchemy_hawq',
     version='0.2.0',
-    packages=PACKAGES,
+    packages=find_packages(),
     install_requires=INSTALL_REQS,
     extras_require={
         'docs': DOCUMENTATION_REQS,
