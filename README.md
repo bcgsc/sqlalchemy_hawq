@@ -1,7 +1,12 @@
 # Sqlalchemy Hawq
 
 - [Getting Started](#getting-started)
+    - [Install (For developers)](#install-for-developers)
+    - [Run Tests](#run-tests)
 - [Using in a SQLAlchemy Project](#using-in-a-sqlalchemy-project)
+    - [How to incorporate sqlalchemy-hawq](#how-to-incorporate-sqlalchemy-hawq)
+    - [Hawq-specific table arguments](#hawq-specific-table-arguments)
+    - [Example of hawq table arguments with declarative syntax](#example-of-hawq-table-arguments-with-declarative-syntax)
 - [Using Partitions](#using-partitions)
 
 This is a custom dialect for using SQLAlchemy with a [HAWQ](http://hawq.apache.org/docs/userguide/2.3.0.0-incubating/tutorial/overview.html)
@@ -18,7 +23,6 @@ Unless specificaly overridden, any functionality in SQLAlchemy's Postgresql dial
 is also available. Note that in general, functionality that is available in Postgresql but not in
 Hawq has not yet been disabled.
 
----
 
 ## Getting Started
 
@@ -44,8 +48,6 @@ install the package and its development dependencies
 ```bash
 pip install -e .[dev]
 ```
-
----
 
 ### Run Tests
 
@@ -106,7 +108,6 @@ engine = create_engine('hawq://USERNAME:PASSWORD@hdp-master02.hadoop.bcgsc.ca:54
 For sqlalchemy's instructions on how to use their engine, see
 https://docs.sqlalchemy.org/en/13/core/engines.html.
 
----
 
 ### Hawq-specific table arguments
 
@@ -122,7 +123,6 @@ Hawq specific table arguments are also supported (Not all features are supported
 | hawq_compresslevel | int | `0` | expects an integer between 0-9 |
 | hawq_bucketnum | int | `6` | expects an integer between 0 and `default_hash_table_bucket_number`
 
----
 
 ### Example of hawq table arguments with declarative syntax
 
