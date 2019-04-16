@@ -12,7 +12,8 @@ Features include:
 - a modified 'DELETE' statement for compatibility with SQLAlchemy's test suite
 
 Unless specificaly overridden, any functionality in SQLAlchemy's Postgresql dialect
-is also available.
+is also available. Note that in general, functionality that is available in Postgresql but not in
+Hawq has not yet been disabled.
 
 
 ## Getting Started
@@ -23,7 +24,7 @@ is also available.
 clone this repository
 
 ```bash
-git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/vdb/sqlalchemy_hawq.git
+git clone https://creisle@svn.bcgsc.ca/bitbucket/scm/dat/sqlalchemy_hawq.git
 cd sqlalchemy_hawq
 ```
 
