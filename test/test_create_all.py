@@ -421,23 +421,3 @@ WITH (compresslevel={})'''.format(
         expected = str(delete_stmt.compile(engine_spy.engine))
 
         assert expected == 'TRUNCATE TABLE \"MockTable\"'
-
-    def test_create_view(self, base=declarative_base(), engine_spy=get_engine_spy()):
-        class MockTable(base):
-            __tablename__ = 'MockTable'
-
-            id = Column('id', Integer, primary_key=True)
-            col = Column('col', Integer)
-
-        metadata = MockTable.__table__.metadata
-        metadata.create_all(engine_spy.engine)
-
-        view = Table(
-            'view_test', metadata, Column('id', Integer, primary_key=True), Column('col', Integer)
-        )
-        definition = text('select * from "MockTable"')
-        view_sql = CreateView(view, definition)
-
-        expected = (str(view_sql.compile())).strip()
-
-        assert expected == "CREATE VIEW view_test (id, col) AS select * from \"MockTable\""
