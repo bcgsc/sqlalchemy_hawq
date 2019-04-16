@@ -1,5 +1,8 @@
-
 # Sqlalchemy Hawq
+
+- [Getting Started](#getting-started)
+- [Using in a SQLAlchemy Project](#using-in-a-sqlalchemy-project)
+- [Using Partitions](#using-partitions)
 
 This is a custom dialect for using SQLAlchemy with a [HAWQ](http://hawq.apache.org/docs/userguide/2.3.0.0-incubating/tutorial/overview.html)
 database.
@@ -15,6 +18,7 @@ Unless specificaly overridden, any functionality in SQLAlchemy's Postgresql dial
 is also available. Note that in general, functionality that is available in Postgresql but not in
 Hawq has not yet been disabled.
 
+---
 
 ## Getting Started
 
@@ -40,6 +44,8 @@ install the package and its development dependencies
 ```bash
 pip install -e .[dev]
 ```
+
+---
 
 ### Run Tests
 
@@ -77,6 +83,7 @@ See https://github.com/zzzeek/sqlalchemy/blob/master/README.unittests.rst and
 https://github.com/zzzeek/sqlalchemy/blob/master/README.dialects.rst for more information on
 test configuration. Note that no default db is stored in sqlalchemy_hawq's setup.cfg.
 
+---
 
 ## Using in a SQLAlchemy project
 
@@ -99,6 +106,7 @@ engine = create_engine('hawq://USERNAME:PASSWORD@hdp-master02.hadoop.bcgsc.ca:54
 For sqlalchemy's instructions on how to use their engine, see
 https://docs.sqlalchemy.org/en/13/core/engines.html.
 
+---
 
 ### Hawq-specific table arguments
 
@@ -143,7 +151,7 @@ def main():
 
 ---
 
-### Using partitions
+## Using partitions
 
 See https://hawq.apache.org/docs/userguide/2.3.0.0-incubating/ddl/ddl-partition.html for an
 extended discussion of how partitions work in Hawq.
@@ -349,3 +357,5 @@ test_refactor=> \dt
  public | MockTable_1_prt_extra_2_prt_extra_3_prt_chr3  | table | elewis
  public | MockTable_1_prt_extra_2_prt_extra_3_prt_other | table | elewis
  ```
+
+---
