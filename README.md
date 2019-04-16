@@ -42,9 +42,38 @@ pip install -e .[dev]
 
 ### Run Tests
 
+sqlalchemy_hawq incorporates the standard SQLAlchemy test suite as well as some tests
+of its own. Run them all as follows:
+
 ```bash
-pytest tests
+pytest test --hawq://username:password@hostname:port/database
 ```
+
+Run only the standard SQLAlchemy test suite:
+
+```bash
+pytest test --hawq://username:password@hostname:port/database --sqla-only
+```
+
+Run only the custom sqlalchemy_hawq tests:
+
+```bash
+pytest test --hawq://username:password@hostname:port/database --custom-only
+```
+
+Run only the custom tests that don't require a live db connection - e.g., for ci:
+
+```bash
+pytest test --offline-only
+```
+
+For tests that use a live db connection, user running the tests must be able to create and drop
+tables on the db provided. Also, many of the tests require that there are pre-existing schemas
+'test_schema' and 'test_schema_2' on the db. See https://github.com/zzzeek/sqlalchemy/blob/master/README.unittests.rst and
+https://github.com/zzzeek/sqlalchemy/blob/master/README.dialects.rst for more information on
+test configuration.
+
+
 
 ## Using in an SQLAlchemy project
 
