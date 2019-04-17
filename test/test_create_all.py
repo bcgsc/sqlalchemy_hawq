@@ -2,7 +2,7 @@
 Tests Hawq compiler output without connecting to live db.
 """
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, UniqueConstraint, create_engine
+from sqlalchemy import Table, Column, Integer, Text, UniqueConstraint, create_engine, text
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
 
