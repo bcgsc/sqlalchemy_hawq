@@ -214,7 +214,7 @@ class MockTable(base):
     __table_args__ = {
         'hawq_partition_by': RangePartition(
             'year',
-            2019,
+            2009,
             2012,
             1,
             [
@@ -234,7 +234,7 @@ class MockTable(base):
     }
     id = Column('id', Integer(), primary_key=True, autoincrement=False)
     year = Column('year', Integer())
-    month = Column('month', Integer())
+    quarter = Column('quarter', Integer())
     chrom = Column('chrom', Text())
 ```
 
