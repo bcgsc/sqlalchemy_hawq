@@ -1,3 +1,7 @@
+import os
+import re
+
+
 from setuptools import setup
 
 # Dependencies required to use your package
@@ -15,6 +19,15 @@ DEPLOYMENT_REQS = ['twine', 'wheel', 'm2r']
 DEVELOPMENT_REQS = ['black', 'flake8']
 
 PACKAGES = ['test', 'sqlalchemy_hawq']
+
+try:
+    import m2r
+
+    long_description = m2r.parse_from_file('README.md')
+    long_description = re.sub(r'.. code-block::.*', '.. code::', long_description)
+except ImportError:
+    with open('README.md', 'r') as f:
+        long_description = f.read()
 
 setup(
     name='sqlalchemy_hawq',
@@ -38,4 +51,6 @@ setup(
             'hawq+psycopg2 = sqlalchemy_hawq.dialect:HawqDialect',
         ]
     },
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
 )
