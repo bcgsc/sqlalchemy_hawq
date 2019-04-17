@@ -3,6 +3,7 @@
 - [Getting Started](#getting-started)
     - [Install (For developers)](#install-for-developers)
     - [Run Tests](#run-tests)
+    - [Deploy (For developers)](#deploy-for-developers)
 - [Using in a SQLAlchemy Project](#using-in-a-sqlalchemy-project)
     - [How to incorporate sqlalchemy-hawq](#how-to-incorporate-sqlalchemy-hawq)
     - [Hawq-specific table arguments](#hawq-specific-table-arguments)
@@ -78,12 +79,40 @@ pytest test --offline-only
 
 For tests that use a live db connection, user running the tests must be able to create and drop
 tables on the db provided. Also, many of the tests require that there are pre-existing schemas
-'test_schema' and 'test_schema_2' on the db. The test suite can be run without them but the tests
-will fail.
+'test_schema' and 'test_schema_2' on the db. The test suite can be run without them but the tests will fail.
 
 See https://github.com/zzzeek/sqlalchemy/blob/master/README.unittests.rst and
 https://github.com/zzzeek/sqlalchemy/blob/master/README.dialects.rst for more information on
-test configuration. Note that no default db is stored in sqlalchemy_hawq's setup.cfg.
+test configuration. Note that no default db url is stored in sqlalchemy_hawq's setup.cfg.
+
+### Deploy (For developers)
+
+Create the venv and ensure the latest versions of setuptools and pip are installed:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -U setuptools pip
+```
+
+Install sqlalchemy_hawq for deployment and create the distribution packages:
+
+```bash
+pip install .[deploy]
+python setup.py install sdist bdist_wheel
+```
+
+If you want, you can now check for any problems in the distribution files:
+
+```bash
+twine check dist/*
+```
+
+Then:
+
+```bash
+twine upload dist/* --repository-url http://pyshop.bcgsc.ca/simple/
+```
 
 ---
 
