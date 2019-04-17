@@ -41,6 +41,7 @@ setup(
     },
     python_requires='>=3',
     author_email='creisle@bcgsc.ca',
+    url='https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/sqlalchemy_hawq/browse',
     dependency_links=[],
     test_suite='test',
     tests_require=TEST_REQS,
