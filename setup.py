@@ -4,13 +4,15 @@ from setuptools import setup
 INSTALL_REQS = ['sqlalchemy>=1.2.12[postgresql]', 'psycopg2-binary']
 
 # Dependencies required only for building the documentation
-DOCUMENTATION_REQS = ['sphinx']
+DOCUMENTATION_REQS = []
 
 # Dependencies required only for running tests
 TEST_REQS = ['pytest', 'pytest-cov', 'mock', 'pytest-xdist']
 
 # Dependencies required for deploying to an index server
-DEPLOYMENT_REQS = ['twine', 'wheel']
+DEPLOYMENT_REQS = ['twine', 'wheel', 'm2r']
+
+DEVELOPMENT_REQS = ['black', 'flake8']
 
 PACKAGES = ['test', 'sqlalchemy_hawq']
 
@@ -21,7 +23,7 @@ setup(
     install_requires=INSTALL_REQS,
     extras_require={
         'docs': DOCUMENTATION_REQS,
-        'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS,
+        'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS + DEVELOPMENT_REQS,
         'test': TEST_REQS,
         'deploy': DEPLOYMENT_REQS,
     },
