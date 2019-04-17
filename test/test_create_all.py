@@ -13,7 +13,6 @@ from sqlalchemy_hawq.partition import (
     ListSubpartition,
 )
 from sqlalchemy_hawq.point import Point
-from sqlalchemy_hawq.ddl import CreateView, DropView
 
 
 def get_engine_spy():
