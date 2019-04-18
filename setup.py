@@ -1,32 +1,47 @@
-from setuptools import setup, find_packages
+import re
+
+
+from setuptools import setup
 
 # Dependencies required to use your package
 INSTALL_REQS = ['sqlalchemy>=1.2.12[postgresql]', 'psycopg2-binary']
 
 # Dependencies required only for building the documentation
-DOCUMENTATION_REQS = ['sphinx']
+DOCUMENTATION_REQS = []
 
 # Dependencies required only for running tests
 TEST_REQS = ['pytest>=4.4.0', 'pytest-cov', 'mock', 'pytest-xdist']
 
 # Dependencies required for deploying to an index server
-DEPLOYMENT_REQS = ['twine']
+DEPLOYMENT_REQS = ['twine', 'wheel', 'm2r']
 
+DEVELOPMENT_REQS = ['black', 'flake8']
 
 PACKAGES = ['test', 'sqlalchemy_hawq']
 
+try:
+    import m2r
+
+    long_description = m2r.parse_from_file('README.md')
+    long_description = re.sub(r'.. code-block::.*', '.. code::', long_description)
+except ImportError:
+    with open('README.md', 'r') as f:
+        long_description = f.read()
+
 setup(
     name='sqlalchemy_hawq',
-    version='0.2.0',
+    version='0.2.1',
     packages=PACKAGES,
     install_requires=INSTALL_REQS,
     extras_require={
         'docs': DOCUMENTATION_REQS,
-        'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS,
+        'dev': TEST_REQS + DEPLOYMENT_REQS + DOCUMENTATION_REQS + DEVELOPMENT_REQS,
         'test': TEST_REQS,
+        'deploy': DEPLOYMENT_REQS,
     },
     python_requires='>=3',
     author_email='creisle@bcgsc.ca',
+    url='https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/sqlalchemy_hawq/browse',
     dependency_links=[],
     test_suite='test',
     tests_require=TEST_REQS,
@@ -36,4 +51,6 @@ setup(
             'hawq+psycopg2 = sqlalchemy_hawq.dialect:HawqDialect',
         ]
     },
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
 )

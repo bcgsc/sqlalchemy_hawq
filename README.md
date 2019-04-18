@@ -3,6 +3,7 @@
 - [Getting Started](#getting-started)
     - [Install (For developers)](#install-for-developers)
     - [Run Tests](#run-tests)
+    - [Deploy (For developers)](#deploy-for-developers)
 - [Using in a SQLAlchemy Project](#using-in-a-sqlalchemy-project)
     - [How to incorporate sqlalchemy-hawq](#how-to-incorporate-sqlalchemy-hawq)
     - [Hawq-specific table arguments](#hawq-specific-table-arguments)
@@ -19,9 +20,7 @@ Features include:
 - a point class
 - a modified 'DELETE' statement for compatibility with SQLAlchemy's test suite
 
-Unless specificaly overridden, any functionality in SQLAlchemy's Postgresql dialect
-is also available. Note that in general, functionality that is available in Postgresql but not in
-Hawq has not yet been disabled.
+Unless specifically overridden, any functionality in SQLAlchemy's Postgresql dialect is also available. Note that in general, functionality that is available in Postgresql but not in Hawq has not yet been disabled.
 
 
 ## Getting Started
@@ -51,8 +50,7 @@ pip install -e .[dev]
 
 ### Run Tests
 
-sqlalchemy_hawq incorporates the standard SQLAlchemy test suite as well as some tests
-of its own. Run them all as follows:
+sqlalchemy_hawq incorporates the standard SQLAlchemy test suite as well as some tests of its own. Run them all as follows:
 
 ```bash
 pytest test --hawq://username:password@hostname:port/database
@@ -76,14 +74,38 @@ Run only the custom tests that don't require a live db connection - e.g., for ci
 pytest test --offline-only
 ```
 
-For tests that use a live db connection, user running the tests must be able to create and drop
-tables on the db provided. Also, many of the tests require that there are pre-existing schemas
-'test_schema' and 'test_schema_2' on the db. The test suite can be run without them but the tests
-will fail.
+For tests that use a live db connection, user running the tests must be able to create and drop tables on the db provided. Also, many of the tests require that there are pre-existing schemas 'test_schema' and 'test_schema_2' on the db. The test suite can be run without them but the tests will fail.
 
-See https://github.com/zzzeek/sqlalchemy/blob/master/README.unittests.rst and
-https://github.com/zzzeek/sqlalchemy/blob/master/README.dialects.rst for more information on
-test configuration. Note that no default db is stored in sqlalchemy_hawq's setup.cfg.
+See https://github.com/zzzeek/sqlalchemy/blob/master/README.unittests.rst and https://github.com/zzzeek/sqlalchemy/blob/master/README.dialects.rst for more information on test configuration. Note that no default db url is stored in sqlalchemy_hawq's setup.cfg.
+
+### Deploy (For developers)
+
+Create the venv and ensure the latest versions of setuptools and pip are installed:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -U setuptools pip
+```
+
+Install sqlalchemy_hawq for deployment and create the distribution packages:
+
+```bash
+pip install .[deploy]
+python setup.py install sdist bdist_wheel
+```
+
+If you want, you can now check for any problems in the distribution files:
+
+```bash
+twine check dist/*
+```
+
+Then:
+
+```bash
+twine upload dist/* --repository-url http://pyshop.bcgsc.ca/simple/
+```
 
 ---
 
@@ -105,8 +127,7 @@ from sqlalchemy import create_engine
 engine = create_engine('hawq://USERNAME:PASSWORD@hdp-master02.hadoop.bcgsc.ca:5432/test_refactor/')
 ```
 
-For sqlalchemy's instructions on how to use their engine, see
-https://docs.sqlalchemy.org/en/13/core/engines.html.
+For sqlalchemy's instructions on how to use their engine, see https://docs.sqlalchemy.org/en/13/core/engines.html.
 
 
 ### Hawq-specific table arguments
@@ -153,13 +174,9 @@ def main():
 
 ## Using partitions
 
-See https://hawq.apache.org/docs/userguide/2.3.0.0-incubating/ddl/ddl-partition.html for an
-extended discussion of how partitions work in Hawq.
+See https://hawq.apache.org/docs/userguide/2.3.0.0-incubating/ddl/ddl-partition.html for an extended discussion of how partitions work in Hawq.
 
-Basically, partitioning divides a table into several smaller tables on the value of one or more
-columns, in order to reduce search time on those columns. The parent table can then be queried/added
-to without any further reference to the partitions, as Hawq handles all the parent-partition
-interactions.
+Basically, partitioning divides a table into several smaller tables on the value of one or more columns, in order to reduce search time on those columns. The parent table can then be queried/added to without any further reference to the partitions, as Hawq handles all the parent-partition interactions.
 
 Partition arguments are:
 
@@ -200,8 +217,7 @@ ListSubpartition(
     columns=dict{name_of_partition:value_to_partition_on})
 ```
 
-Note that the params are the same for the Subpartitions are for the Partitions, except that
-Subpartitions do not have a nested subpartition array.
+Note that the params are the same for the Subpartitions are for the Partitions, except that Subpartitions do not have a nested subpartition array.
 
 Partition level is determined by the order of the subpartitions in the subpartition array.
 
