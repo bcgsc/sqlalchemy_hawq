@@ -30,7 +30,7 @@ except ImportError:
 
 setup(
     name='sqlalchemy_hawq',
-    version='0.2.1',
+    version='0.2.2',
     packages=PACKAGES,
     install_requires=INSTALL_REQS,
     extras_require={
