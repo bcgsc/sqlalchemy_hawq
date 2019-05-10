@@ -2,7 +2,7 @@
 Tests Hawq compiler output without connecting to live db.
 """
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Table, Column, Integer, Text, UniqueConstraint, create_engine, text
+from sqlalchemy import Column, Integer, UniqueConstraint, create_engine, Text
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
 from collections import OrderedDict
@@ -50,7 +50,7 @@ class TestCreateAll(fixtures.TestBase):
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-	chrom TEXT NOT NULL
+    chrom TEXT NOT NULL
 )
 WITH (appendonly=True)
 DISTRIBUTED BY (chrom)
@@ -120,7 +120,7 @@ DISTRIBUTED BY (chrom)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-	chrom TEXT NOT NULL
+    chrom TEXT NOT NULL
 )
 PARTITION BY LIST (chrom)
 (
@@ -143,7 +143,7 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-	chrom INTEGER NOT NULL
+    chrom INTEGER NOT NULL
 )
 PARTITION BY RANGE (chrom)
 (
@@ -166,7 +166,9 @@ PARTITION BY RANGE (chrom)
                     1,
                     [
                         RangeSubpartition('month', 1, 13, 1),
-                        ListSubpartition('chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])),
+                        ListSubpartition(
+                            'chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])
+                        ),
                     ],
                 )
             }
@@ -179,10 +181,10 @@ PARTITION BY RANGE (chrom)
         metadata.create_all(engine_spy.engine)
         expected = ' '.join(
             '''CREATE TABLE "MockTable" (
-	id INTEGER NOT NULL,
-	year INTEGER,
-	month INTEGER,
-	chrom TEXT
+    id INTEGER NOT NULL,
+    year INTEGER,
+    month INTEGER,
+    chrom TEXT
 )
 PARTITION BY RANGE (year)
     SUBPARTITION BY RANGE (month)
@@ -230,10 +232,10 @@ PARTITION BY RANGE (year)
         metadata.create_all(engine_spy.engine)
         expected = ' '.join(
             '''CREATE TABLE "MockTable" (
-	id INTEGER NOT NULL,
-	year INTEGER,
-	month INTEGER,
-	chrom TEXT
+    id INTEGER NOT NULL,
+    year INTEGER,
+    month INTEGER,
+    chrom TEXT
 )
 PARTITION BY LIST (chrom)
     SUBPARTITION BY RANGE (year)
