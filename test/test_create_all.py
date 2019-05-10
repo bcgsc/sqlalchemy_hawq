@@ -50,7 +50,7 @@ class TestCreateAll(fixtures.TestBase):
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-    chrom TEXT NOT NULL
+\tchrom TEXT NOT NULL
 )
 WITH (appendonly=True)
 DISTRIBUTED BY (chrom)
@@ -120,7 +120,7 @@ DISTRIBUTED BY (chrom)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-    chrom TEXT NOT NULL
+\tchrom TEXT NOT NULL
 )
 PARTITION BY LIST (chrom)
 (
@@ -143,7 +143,7 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-    chrom INTEGER NOT NULL
+\tchrom INTEGER NOT NULL
 )
 PARTITION BY RANGE (chrom)
 (
