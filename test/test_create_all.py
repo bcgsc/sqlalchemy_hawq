@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, Text, UniqueConstraint, create_engine, text
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
+from collections import OrderedDict
 
 from sqlalchemy_hawq.partition import (
     RangePartition,
@@ -39,7 +40,7 @@ class TestCreateAll(fixtures.TestBase):
                 {
                     'hawq_distributed_by': 'chrom',
                     'hawq_partition_by': ListPartition(
-                        'chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}
+                        'chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])
                     ),
                     'hawq_appendonly': True,
                 },
@@ -110,7 +111,7 @@ DISTRIBUTED BY (chrom)'''
                 UniqueConstraint('chrom'),
                 {
                     'hawq_partition_by': ListPartition(
-                        'chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}
+                        'chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])
                     )
                 },
             )
@@ -165,7 +166,7 @@ PARTITION BY RANGE (chrom)
                     1,
                     [
                         RangeSubpartition('month', 1, 13, 1),
-                        ListSubpartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}),
+                        ListSubpartition('chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])),
                     ],
                 )
             }
@@ -213,7 +214,7 @@ PARTITION BY RANGE (year)
             __table_args__ = {
                 'hawq_partition_by': ListPartition(
                     'chrom',
-                    {'chr1': '1', 'chr2': '2', 'chr3': '3'},
+                    OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')]),
                     [
                         RangeSubpartition('year', 2002, 2012, 1),
                         RangeSubpartition('month', 1, 13, 1),
