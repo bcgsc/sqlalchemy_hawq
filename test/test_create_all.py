@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, UniqueConstraint, create_engine, Text
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
 from collections import OrderedDict
+import re
 
 from sqlalchemy_hawq.partition import (
     RangePartition,
@@ -50,7 +51,7 @@ class TestCreateAll(fixtures.TestBase):
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (appendonly=True)
 DISTRIBUTED BY (chrom)
@@ -61,7 +62,12 @@ PARTITION BY LIST (chrom)
     PARTITION chr3 VALUES ('3'),
     DEFAULT PARTITION other
 )'''
-        assert expected == engine_spy.sql.strip()
+
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_distributed_by(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -72,10 +78,15 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 DISTRIBUTED BY (chrom)'''
-        assert expected == engine_spy.sql.strip()
+
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_distributed_with_hash(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -89,11 +100,16 @@ DISTRIBUTED BY (chrom)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (bucketnum=42)
 DISTRIBUTED BY (chrom)'''
-        assert expected == engine_spy.sql.strip()
+
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_hash_without_distribution(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -120,7 +136,7 @@ DISTRIBUTED BY (chrom)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 PARTITION BY LIST (chrom)
 (
@@ -129,7 +145,11 @@ PARTITION BY LIST (chrom)
     PARTITION chr3 VALUES ('3'),
     DEFAULT PARTITION other
 )'''
-        assert expected == engine_spy.sql.strip()
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_partition_by_range(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -143,15 +163,18 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom INTEGER NOT NULL
+chrom INTEGER NOT NULL
 )
 PARTITION BY RANGE (chrom)
 (
     START (0) END (10) EVERY (2),
     DEFAULT PARTITION extra
 )'''
-        assert expected == engine_spy.sql.strip()
-        print(engine_spy.sql.strip())
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_partition_by_range_subpartition_by_list_and_range(
         self, base=declarative_base(), engine_spy=get_engine_spy()
@@ -269,10 +292,15 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (appendonly=True)'''
-        assert expected == engine_spy.sql.strip()
+
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_appendonly_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -292,10 +320,15 @@ WITH (appendonly=True)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (orientation=ROW)'''
-        assert expected == engine_spy.sql.strip()
+
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_orientation_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -319,12 +352,17 @@ WITH (orientation=ROW)'''
             metadata = MockTable.__table__.metadata
             metadata.create_all(engine_spy.engine)
             expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (compresstype={})'''.format(
                 compresstype
             )
-            assert expected == engine_spy.sql.strip()
+
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_compresstype_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -348,12 +386,17 @@ WITH (compresstype={})'''.format(
             metadata = MockTable.__table__.metadata
             metadata.create_all(engine_spy.engine)
             expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (compresslevel={})'''.format(
                 compresslevel
             )
-            assert expected == engine_spy.sql.strip()
+
+            # Use regex to strip whitespaces and newline characters
+            updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+            updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+            assert updated_expected == updated_engine_spy_sql
 
     def test_compresslevel_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -372,9 +415,13 @@ WITH (compresslevel={})'''.format(
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tptest POINT NOT NULL
+ptest POINT NOT NULL
 )'''
-        assert expected == engine_spy.sql.strip()
+        # Use regex to strip whitespaces and newline characters
+        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
+        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
+
+        assert updated_expected == updated_engine_spy_sql
 
     def test_compile_point_type_from_list_input(
         self, base=declarative_base(), engine_spy=get_engine_spy()
