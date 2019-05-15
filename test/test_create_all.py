@@ -44,7 +44,7 @@ def normalize_whitespace(input_string):
     '''
 
     # Use regex to strip whitespaces and newline characters
-    return re.sub(r'[\n\s]+', '', input_string, flags=re.MULTILINE)
+    return re.sub(r'[\n\s]+', ' ', input_string, flags=re.MULTILINE)
 
 
 class TestCreateAll(fixtures.TestBase):
