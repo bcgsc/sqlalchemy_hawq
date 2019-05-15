@@ -32,6 +32,21 @@ def get_engine_spy():
     return spy
 
 
+def normalize_whitespace(input_string):
+    '''
+    Strip whitespaces and newline characters from the input string
+
+    Args:
+        input_string (str): Given input string
+
+    Returns:
+        str: String sans whitespaces and newline characters
+    '''
+
+    # Use regex to strip whitespaces and newline characters
+    return re.sub(r'[\n\s]+', '', input_string, flags=re.MULTILINE)
+
+
 class TestCreateAll(fixtures.TestBase):
     def test_multiple(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -63,11 +78,7 @@ PARTITION BY LIST (chrom)
     DEFAULT PARTITION other
 )'''
 
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_distributed_by(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -82,11 +93,7 @@ chrom TEXT NOT NULL
 )
 DISTRIBUTED BY (chrom)'''
 
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_distributed_with_hash(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -105,11 +112,7 @@ chrom TEXT NOT NULL
 WITH (bucketnum=42)
 DISTRIBUTED BY (chrom)'''
 
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_hash_without_distribution(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -145,11 +148,7 @@ PARTITION BY LIST (chrom)
     PARTITION chr3 VALUES ('3'),
     DEFAULT PARTITION other
 )'''
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_partition_by_range(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -170,11 +169,7 @@ PARTITION BY RANGE (chrom)
     START (0) END (10) EVERY (2),
     DEFAULT PARTITION extra
 )'''
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_partition_by_range_subpartition_by_list_and_range(
         self, base=declarative_base(), engine_spy=get_engine_spy()
@@ -296,11 +291,7 @@ chrom TEXT NOT NULL
 )
 WITH (appendonly=True)'''
 
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_appendonly_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -324,11 +315,7 @@ chrom TEXT NOT NULL
 )
 WITH (orientation=ROW)'''
 
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_orientation_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -358,11 +345,7 @@ WITH (compresstype={})'''.format(
                 compresstype
             )
 
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_compresstype_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -392,11 +375,7 @@ WITH (compresslevel={})'''.format(
                 compresslevel
             )
 
-            # Use regex to strip whitespaces and newline characters
-            updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-            updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-            assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_compresslevel_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -417,11 +396,7 @@ WITH (compresslevel={})'''.format(
         expected = '''CREATE TABLE "MockTable" (
 ptest POINT NOT NULL
 )'''
-        # Use regex to strip whitespaces and newline characters
-        updated_expected = re.sub(r'[\n\s]+', '', expected, flags=re.MULTILINE)
-        updated_engine_spy_sql = re.sub(r'[\n\s]+', '', engine_spy.sql, flags=re.MULTILINE)
-
-        assert updated_expected == updated_engine_spy_sql
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_compile_point_type_from_list_input(
         self, base=declarative_base(), engine_spy=get_engine_spy()
