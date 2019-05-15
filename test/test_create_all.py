@@ -2,9 +2,11 @@
 Tests Hawq compiler output without connecting to live db.
 """
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Table, Column, Integer, Text, UniqueConstraint, create_engine, text
+from sqlalchemy import Column, Integer, UniqueConstraint, create_engine, Text
 from sqlalchemy.testing.suite import fixtures
 from sqlalchemy.testing import assert_raises
+from collections import OrderedDict
+import re
 
 from sqlalchemy_hawq.partition import (
     RangePartition,
@@ -30,6 +32,21 @@ def get_engine_spy():
     return spy
 
 
+def normalize_whitespace(input_string):
+    '''
+    Strip whitespaces and newline characters from the input string
+
+    Args:
+        input_string (str): Given input string
+
+    Returns:
+        str: String sans whitespaces and newline characters
+    '''
+
+    # Use regex to strip whitespaces and newline characters
+    return re.sub(r'[\n\s]+', ' ', input_string, flags=re.MULTILINE)
+
+
 class TestCreateAll(fixtures.TestBase):
     def test_multiple(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -39,7 +56,7 @@ class TestCreateAll(fixtures.TestBase):
                 {
                     'hawq_distributed_by': 'chrom',
                     'hawq_partition_by': ListPartition(
-                        'chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}
+                        'chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])
                     ),
                     'hawq_appendonly': True,
                 },
@@ -49,7 +66,7 @@ class TestCreateAll(fixtures.TestBase):
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-	chrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (appendonly=True)
 DISTRIBUTED BY (chrom)
@@ -60,7 +77,8 @@ PARTITION BY LIST (chrom)
     PARTITION chr3 VALUES ('3'),
     DEFAULT PARTITION other
 )'''
-        assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_distributed_by(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -71,10 +89,11 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 DISTRIBUTED BY (chrom)'''
-        assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_distributed_with_hash(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -88,11 +107,12 @@ DISTRIBUTED BY (chrom)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (bucketnum=42)
 DISTRIBUTED BY (chrom)'''
-        assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_hash_without_distribution(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -110,7 +130,7 @@ DISTRIBUTED BY (chrom)'''
                 UniqueConstraint('chrom'),
                 {
                     'hawq_partition_by': ListPartition(
-                        'chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}
+                        'chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])
                     )
                 },
             )
@@ -119,7 +139,7 @@ DISTRIBUTED BY (chrom)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-	chrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 PARTITION BY LIST (chrom)
 (
@@ -128,7 +148,7 @@ PARTITION BY LIST (chrom)
     PARTITION chr3 VALUES ('3'),
     DEFAULT PARTITION other
 )'''
-        assert expected == engine_spy.sql.strip()
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_partition_by_range(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -142,15 +162,14 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-	chrom INTEGER NOT NULL
+chrom INTEGER NOT NULL
 )
 PARTITION BY RANGE (chrom)
 (
     START (0) END (10) EVERY (2),
     DEFAULT PARTITION extra
 )'''
-        assert expected == engine_spy.sql.strip()
-        print(engine_spy.sql.strip())
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_partition_by_range_subpartition_by_list_and_range(
         self, base=declarative_base(), engine_spy=get_engine_spy()
@@ -165,7 +184,9 @@ PARTITION BY RANGE (chrom)
                     1,
                     [
                         RangeSubpartition('month', 1, 13, 1),
-                        ListSubpartition('chrom', {'chr1': '1', 'chr2': '2', 'chr3': '3'}),
+                        ListSubpartition(
+                            'chrom', OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')])
+                        ),
                     ],
                 )
             }
@@ -178,10 +199,10 @@ PARTITION BY RANGE (chrom)
         metadata.create_all(engine_spy.engine)
         expected = ' '.join(
             '''CREATE TABLE "MockTable" (
-	id INTEGER NOT NULL,
-	year INTEGER,
-	month INTEGER,
-	chrom TEXT
+    id INTEGER NOT NULL,
+    year INTEGER,
+    month INTEGER,
+    chrom TEXT
 )
 PARTITION BY RANGE (year)
     SUBPARTITION BY RANGE (month)
@@ -213,7 +234,7 @@ PARTITION BY RANGE (year)
             __table_args__ = {
                 'hawq_partition_by': ListPartition(
                     'chrom',
-                    {'chr1': '1', 'chr2': '2', 'chr3': '3'},
+                    OrderedDict([('chr1', '1'), ('chr2', '2'), ('chr3', '3')]),
                     [
                         RangeSubpartition('year', 2002, 2012, 1),
                         RangeSubpartition('month', 1, 13, 1),
@@ -229,10 +250,10 @@ PARTITION BY RANGE (year)
         metadata.create_all(engine_spy.engine)
         expected = ' '.join(
             '''CREATE TABLE "MockTable" (
-	id INTEGER NOT NULL,
-	year INTEGER,
-	month INTEGER,
-	chrom TEXT
+    id INTEGER NOT NULL,
+    year INTEGER,
+    month INTEGER,
+    chrom TEXT
 )
 PARTITION BY LIST (chrom)
     SUBPARTITION BY RANGE (year)
@@ -266,10 +287,11 @@ PARTITION BY LIST (chrom)
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (appendonly=True)'''
-        assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_appendonly_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -289,10 +311,11 @@ WITH (appendonly=True)'''
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (orientation=ROW)'''
-        assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_orientation_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -316,12 +339,13 @@ WITH (orientation=ROW)'''
             metadata = MockTable.__table__.metadata
             metadata.create_all(engine_spy.engine)
             expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (compresstype={})'''.format(
                 compresstype
             )
-            assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_compresstype_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -345,12 +369,13 @@ WITH (compresstype={})'''.format(
             metadata = MockTable.__table__.metadata
             metadata.create_all(engine_spy.engine)
             expected = '''CREATE TABLE "MockTable" (
-\tchrom TEXT NOT NULL
+chrom TEXT NOT NULL
 )
 WITH (compresslevel={})'''.format(
                 compresslevel
             )
-            assert expected == engine_spy.sql.strip()
+
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_compresslevel_error(self, base=declarative_base(), engine_spy=get_engine_spy()):
         class MockTable(base):
@@ -369,9 +394,9 @@ WITH (compresslevel={})'''.format(
         metadata = MockTable.__table__.metadata
         metadata.create_all(engine_spy.engine)
         expected = '''CREATE TABLE "MockTable" (
-\tptest POINT NOT NULL
+ptest POINT NOT NULL
 )'''
-        assert expected == engine_spy.sql.strip()
+        normalize_whitespace(expected) == normalize_whitespace(engine_spy.sql)
 
     def test_compile_point_type_from_list_input(
         self, base=declarative_base(), engine_spy=get_engine_spy()

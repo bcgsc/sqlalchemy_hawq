@@ -30,7 +30,7 @@ except ImportError:
 
 setup(
     name='sqlalchemy_hawq',
-    version='0.2.1',
+    version='0.2.2',
     packages=PACKAGES,
     install_requires=INSTALL_REQS,
     extras_require={
@@ -39,7 +39,7 @@ setup(
         'test': TEST_REQS,
         'deploy': DEPLOYMENT_REQS,
     },
-    python_requires='>=3',
+    python_requires='>=3.4',
     author_email='creisle@bcgsc.ca',
     url='https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/sqlalchemy_hawq/browse',
     dependency_links=[],
