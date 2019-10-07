@@ -51,6 +51,7 @@ setup(
             'hawq+psycopg2 = sqlalchemy_hawq.dialect:HawqDialect',
         ]
     },
+    classifiers=["License :: OSI Approved :: MIT License"],
     long_description=long_description,
     long_description_content_type='text/x-rst',
 )
