@@ -30,7 +30,7 @@ except ImportError:
 
 setup(
     name='sqlalchemy_hawq',
-    version='1.0.0',
+    version='1.0.1',
     packages=PACKAGES,
     install_requires=INSTALL_REQS,
     extras_require={
@@ -39,9 +39,9 @@ setup(
         'test': TEST_REQS,
         'deploy': DEPLOYMENT_REQS,
     },
-    python_requires='>=3.4',
+    python_requires='>=3.6',
     author_email='creisle@bcgsc.ca',
-    url='https://svn.bcgsc.ca/bitbucket/projects/DAT/repos/sqlalchemy_hawq/browse',
+    url='https://github.com/bcgsc/sqlalchemy_hawq',
     dependency_links=[],
     test_suite='test',
     tests_require=TEST_REQS,
@@ -51,6 +51,7 @@ setup(
             'hawq+psycopg2 = sqlalchemy_hawq.dialect:HawqDialect',
         ]
     },
+    classifiers=["License :: OSI Approved :: MIT License"],
     long_description=long_description,
     long_description_content_type='text/x-rst',
 )
