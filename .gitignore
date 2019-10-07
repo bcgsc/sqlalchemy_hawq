@@ -22,3 +22,7 @@ env
 .DS_STORE
 *.db
 .pytest_cache*
+
+
+# tests
+.tox
