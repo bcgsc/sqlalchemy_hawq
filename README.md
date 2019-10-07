@@ -375,5 +375,3 @@ test_refactor=> \dt
  public | MockTable_1_prt_extra_2_prt_extra_3_prt_chr3  | table | elewis
  public | MockTable_1_prt_extra_2_prt_extra_3_prt_other | table | elewis
  ```
-
----
