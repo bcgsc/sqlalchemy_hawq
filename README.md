@@ -1,6 +1,6 @@
 # Sqlalchemy Hawq
 
-[![Build Status](https://travis-ci.org/bcgsc/sqlalchemy_hawq.svg?branch=master)](https://travis-ci.org/bcgsc/sqlalchemy_hawq) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) ![PyPi](https://img.shields.io/pypi/v/sqlalchemy_hawq.svg)
+[![Build Status](https://travis-ci.org/bcgsc/sqlalchemy_hawq.svg?branch=master)](https://travis-ci.org/bcgsc/sqlalchemy_hawq) [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/) [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/) [![PyPi](https://img.shields.io/pypi/v/sqlalchemy_hawq.svg)](https://pypi.org/project/sqlalchemy-hawq)
 
 
 - [Getting Started](#getting-started)
